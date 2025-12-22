@@ -2,10 +2,7 @@
 
 A modern, full-stack cafe management system with QR code-based table ordering, real-time order management, and an elegant customer-facing interface featuring a 3D animated coffee cup.
 
-![BookAVibe](https://img.shields.io/badge/BookAVibe-Cafe%20Management-brown)
-![Node.js](https://img.shields.io/badge/Node.js-18+-green)
-![React](https://img.shields.io/badge/React-18+-blue)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green)
+
 
 ## ✨ Features
 
@@ -112,7 +109,7 @@ BACKEND_URL=http://localhost:5000
 MENU_BASE_URL=http://localhost:5173
 
 # MongoDB Database
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/bookavibe
+MONGO_URI=yoururl
 
 # JWT Configuration
 JWT_SECRET=your_super_secret_jwt_key_min_32_chars
@@ -121,7 +118,7 @@ ACCESS_TOKEN_EXPIRES=15m
 REFRESH_TOKEN_EXPIRES=7d
 
 # Default Admin Credentials (for initial setup)
-ADMIN_EMAIL=admin@yourcompany.com
+ADMIN_EMAIL=youremail
 ADMIN_PASS=YourSecurePassword123!
 
 # Cloudinary (optional - for image uploads)
@@ -234,9 +231,6 @@ npm run lint       # Run ESLint
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Author
 
