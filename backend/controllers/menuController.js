@@ -86,7 +86,7 @@ exports.getCategories = asyncHandler(async (req, res) => {
 // @access  Public
 exports.searchItems = asyncHandler(async (req, res) => {
     const { q } = req.query;
-    
+
     if (!q) {
         return res.status(400).json({
             success: false,
@@ -173,3 +173,24 @@ exports.updateSortOrder = asyncHandler(async (req, res) => {
         message: 'Sort order updated successfully'
     });
 });
+
+// @desc    Upload menu item image
+// @route   POST /api/menu/upload-image
+// @access  Private/Admin
+exports.uploadImage = asyncHandler(async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({
+            success: false,
+            message: 'No image file provided'
+        });
+    }
+
+    res.json({
+        success: true,
+        message: 'Image uploaded successfully',
+        data: {
+            url: req.file.path // Cloudinary returns the URL in path
+        }
+    });
+});
+

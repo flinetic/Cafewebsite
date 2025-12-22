@@ -32,6 +32,11 @@ const orderSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  // Token number for kitchen display (simpler than orderNumber)
+  token: {
+    type: Number,
+    required: true
+  },
   tableNumber: {
     type: Number,
     required: true
@@ -54,7 +59,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'history'],
+    enum: ['pending', 'preparing', 'completed', 'history'],
     default: 'pending'
   },
   notes: {
@@ -64,6 +69,10 @@ const orderSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  preparingAt: {
+    type: Date,
+    default: null
   },
   completedAt: {
     type: Date,
@@ -77,54 +86,59 @@ const orderSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Generate order number
-orderSchema.statics.generateOrderNumber = async function() {
+// Generate order number and token
+orderSchema.statics.generateOrderNumber = async function () {
   const today = new Date();
   const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '');
-  
+
   // Count orders for today
   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
   const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-  
+
   const count = await this.countDocuments({
     createdAt: { $gte: startOfDay, $lte: endOfDay }
   });
-  
+
   const orderNum = String(count + 1).padStart(4, '0');
-  return `ORD-${dateStr}-${orderNum}`;
+  const token = count + 1; // Simple incrementing token number
+
+  return {
+    orderNumber: `ORD-${dateStr}-${orderNum}`,
+    token
+  };
 };
 
 // Get orders by date range
-orderSchema.statics.getOrdersByDateRange = async function(startDate, endDate, status = null) {
+orderSchema.statics.getOrdersByDateRange = async function (startDate, endDate, status = null) {
   const query = {
     createdAt: {
       $gte: new Date(startDate),
       $lte: new Date(endDate)
     }
   };
-  
+
   if (status) {
     query.status = status;
   }
-  
+
   return this.find(query).sort({ createdAt: -1 });
 };
 
 // Get today's orders
-orderSchema.statics.getTodaysOrders = async function(status = null) {
+orderSchema.statics.getTodaysOrders = async function (status = null) {
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-  
+
   return this.getOrdersByDateRange(startOfDay, endOfDay, status);
 };
 
 // Get today's stats
-orderSchema.statics.getTodaysStats = async function() {
+orderSchema.statics.getTodaysStats = async function () {
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-  
+
   const result = await this.aggregate([
     {
       $match: {
@@ -136,7 +150,10 @@ orderSchema.statics.getTodaysStats = async function() {
         _id: null,
         totalOrders: { $sum: 1 },
         pendingOrders: {
-          $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
+          $sum: { $cond: [{ $in: ['$status', ['pending', 'preparing']] }, 1, 0] }
+        },
+        preparingOrders: {
+          $sum: { $cond: [{ $eq: ['$status', 'preparing'] }, 1, 0] }
         },
         completedOrders: {
           $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
@@ -148,15 +165,16 @@ orderSchema.statics.getTodaysStats = async function() {
           $sum: { $cond: [{ $eq: ['$status', 'history'] }, '$totalAmount', 0] }
         },
         pendingAmount: {
-          $sum: { $cond: [{ $in: ['$status', ['pending', 'completed']] }, '$totalAmount', 0] }
+          $sum: { $cond: [{ $in: ['$status', ['pending', 'preparing', 'completed']] }, '$totalAmount', 0] }
         }
       }
     }
   ]);
-  
+
   return result[0] || {
     totalOrders: 0,
     pendingOrders: 0,
+    preparingOrders: 0,
     completedOrders: 0,
     paidOrders: 0,
     totalEarnings: 0,
@@ -165,10 +183,10 @@ orderSchema.statics.getTodaysStats = async function() {
 };
 
 // Auto-delete orders older than 30 days (can be run as a cron job)
-orderSchema.statics.cleanupOldOrders = async function(daysToKeep = 30) {
+orderSchema.statics.cleanupOldOrders = async function (daysToKeep = 30) {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-  
+
   return this.deleteMany({
     createdAt: { $lt: cutoffDate },
     status: 'history'
@@ -176,14 +194,14 @@ orderSchema.statics.cleanupOldOrders = async function(daysToKeep = 30) {
 };
 
 // Virtual for item count
-orderSchema.virtual('itemCount').get(function() {
+orderSchema.virtual('itemCount').get(function () {
   return this.items.reduce((sum, item) => sum + item.quantity, 0);
 });
 
 // Transform for JSON
 orderSchema.set('toJSON', {
   virtuals: true,
-  transform: function(doc, ret) {
+  transform: function (doc, ret) {
     ret.id = ret._id;
     delete ret._id;
     delete ret.__v;

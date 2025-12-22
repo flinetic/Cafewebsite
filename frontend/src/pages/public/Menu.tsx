@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { QrCode, Utensils } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check if there's a table parameter in the URL
+  useEffect(() => {
+    const tableNumber = searchParams.get('table');
+    if (tableNumber) {
+      // Redirect to the TableMenu route with the table number
+      navigate(`/table/${tableNumber}/menu`, { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#faf8f5] via-[#f5ede3] to-[#ede4d9] flex items-center justify-center p-4">
@@ -20,7 +30,7 @@ const Menu: React.FC = () => {
 
         {/* Description */}
         <p className="text-[#6b5744] mb-8 leading-relaxed">
-          Please scan the QR code placed on your table to access our menu and place orders. 
+          Please scan the QR code placed on your table to access our menu and place orders.
           This ensures we serve you at the right table!
         </p>
 
@@ -67,3 +77,4 @@ const Menu: React.FC = () => {
 };
 
 export default Menu;
+

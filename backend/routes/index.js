@@ -14,6 +14,7 @@ const tableRoutes = require("./tables");
 const configRoutes = require("./config");
 const menuRoutes = require("./menu");
 const orderRoutes = require("./orders");
+const offerRoutes = require("./offers");
 
 // Health check route
 router.get("/health", (req, res) => {
@@ -38,6 +39,7 @@ router.get("/", (req, res) => {
       config: "/api/config",
       menu: "/api/menu",
       orders: "/api/orders",
+      offers: "/api/offers",
       health: "/api/health",
     },
     documentation: "/api/docs",
@@ -51,5 +53,7 @@ router.use("/tables", tableRoutes);
 router.use("/config", configRoutes);
 router.use("/menu", menuRoutes);
 router.use("/orders", orderRoutes);
+router.use("/offers", offerRoutes);
 
 module.exports = router;
+

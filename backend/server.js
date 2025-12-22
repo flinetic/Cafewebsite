@@ -51,6 +51,8 @@ const corsOptions = {
       "http://localhost:5173",
       "http://127.0.0.1:3000",
       "http://127.0.0.1:5173",
+      "http://192.168.0.107:5173",
+      "http://192.168.0.107:3000",
     ].filter(Boolean);
 
     // Allow requests with no origin (mobile apps, curl, Postman)
@@ -151,14 +153,14 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log("\n========================================");
   console.log("☕ BookAVibe Cafe Management System");
   console.log("========================================");
   console.log(`📍 Environment: ${NODE_ENV}`);
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🔗 API URL: http://localhost:${PORT}/api`);
-  console.log(`💚 Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`🔗 API URL: http://192.168.0.107:${PORT}/api`);
+  console.log(`💚 Health Check: http://192.168.0.107:${PORT}/api/health`);
   console.log("========================================\n");
 });
 

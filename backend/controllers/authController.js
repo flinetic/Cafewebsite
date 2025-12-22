@@ -9,6 +9,7 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 const Staff = require("../models/Staff");
+const CafeConfig = require("../models/CafeConfig");
 const { sendEmail, emailTemplates } = require("../utils/email");
 const { sendNotification } = require("../utils/sendNotification");
 const asyncHandler = require("../middleware/asyncHandler");
@@ -60,9 +61,32 @@ const generateCryptoToken = () => {
 };
 
 /**
+ * @desc    Check if admin exists and can register as admin
+ * @route   GET /api/auth/admin-exists
+ * @access  Public
+ */
+exports.checkAdminExists = asyncHandler(async (req, res) => {
+  const adminCount = await Staff.countDocuments({
+    role: "admin",
+    registrationStatus: "approved"
+  });
+  const config = await CafeConfig.getConfig();
+
+  res.json({
+    success: true,
+    data: {
+      adminExists: adminCount > 0,
+      adminCount,
+      maxAdminLimit: config.maxAdminLimit,
+      canRegisterAsAdmin: adminCount < config.maxAdminLimit
+    }
+  });
+});
+
+/**
  * @desc    Register new staff member
  * @route   POST /api/auth/register
- * @access  Public (for first admin) / Admin only (for others)
+ * @access  Public
  */
 exports.register = asyncHandler(async (req, res) => {
   const {
@@ -96,9 +120,37 @@ exports.register = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check if this is the first user (make them admin)
-  const staffCount = await Staff.countDocuments();
-  const assignedRole = staffCount === 0 ? "admin" : role || "staff";
+  // Get cafe config for admin limit
+  const config = await CafeConfig.getConfig();
+
+  // Count existing approved admins
+  const adminCount = await Staff.countDocuments({
+    role: "admin",
+    registrationStatus: "approved"
+  });
+
+  // Determine if this user can be registered as admin
+  const canRegisterAsAdmin = adminCount < config.maxAdminLimit;
+  const isFirstAdmin = adminCount === 0;
+
+  // Determine role and registration status
+  let assignedRole = null;
+  let registrationStatus = "pending";
+
+  if (isFirstAdmin && role === "admin") {
+    // First admin registration - auto-approve
+    assignedRole = "admin";
+    registrationStatus = "approved";
+  } else if (role === "admin" && canRegisterAsAdmin) {
+    // Additional admin registration (if admin limit not reached)
+    // Still needs approval by existing admin
+    assignedRole = null;
+    registrationStatus = "pending";
+  } else {
+    // Normal user registration - pending approval
+    assignedRole = null;
+    registrationStatus = "pending";
+  }
 
   // Generate verification token
   const { token: verificationToken, hashedToken } = generateCryptoToken();
@@ -111,6 +163,7 @@ exports.register = asyncHandler(async (req, res) => {
     password,
     phone,
     role: assignedRole,
+    registrationStatus,
     department,
     dateOfBirth,
     gender,
@@ -121,11 +174,59 @@ exports.register = asyncHandler(async (req, res) => {
     createdBy: req.staff?._id || null,
   });
 
+  // For first admin, auto-approve and auto-login but still send verification email
+  if (isFirstAdmin && assignedRole === "admin") {
+    // Generate tokens for first admin (auto-login)
+    const accessToken = generateAccessToken(staff);
+    const refreshToken = generateRefreshToken(staff);
+
+    // Send verification email to first admin
+    const backendVerifyURL = `${process.env.BACKEND_URL || "http://localhost:5000"}/api/auth/verify-email/${verificationToken}`;
+
+    try {
+      await sendEmail({
+        to: staff.email,
+        subject: "Verify Your Email - BookAVibe Cafe",
+        html: emailTemplates.verifyEmail(staff.firstName, backendVerifyURL),
+      });
+      console.log("First admin verification email sent to:", staff.email);
+    } catch (emailError) {
+      console.error("Email sending failed for first admin:", emailError);
+    }
+
+    // Send welcome notification
+    await sendNotification(
+      staff._id,
+      "Welcome to BookAVibe! 🎉",
+      `Welcome ${staff.firstName}! You are the first admin. Please verify your email to access all features.`,
+      "success"
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Admin account created successfully! Please verify your email to access all features.",
+      data: {
+        staff: {
+          id: staff._id,
+          firstName: staff.firstName,
+          lastName: staff.lastName,
+          email: staff.email,
+          role: staff.role,
+          registrationStatus: staff.registrationStatus,
+          isEmailVerified: staff.isVerified,
+          isActive: staff.isActive,
+        },
+        tokens: {
+          accessToken,
+          refreshToken,
+        },
+      },
+    });
+  }
+
+  // For pending registrations, send notification but no tokens
   // Send verification email
-  const verifyURL = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
-  const backendVerifyURL = `${
-    process.env.BACKEND_URL || "http://localhost:5000"
-  }/api/auth/verify-email/${verificationToken}`;
+  const backendVerifyURL = `${process.env.BACKEND_URL || "http://localhost:5000"}/api/auth/verify-email/${verificationToken}`;
 
   try {
     await sendEmail({
@@ -135,46 +236,41 @@ exports.register = asyncHandler(async (req, res) => {
     });
   } catch (emailError) {
     console.error("Email sending failed:", emailError);
-    // Don't fail registration if email fails
   }
 
-  // Send welcome notification
+  // Send notification to all admins about new registration
+  const admins = await Staff.find({ role: "admin", registrationStatus: "approved" });
+  for (const admin of admins) {
+    await sendNotification(
+      admin._id,
+      "New Registration Request",
+      `${staff.firstName} ${staff.lastName} (${staff.email}) has registered and is waiting for approval.`,
+      "info"
+    );
+  }
+
+  // Send notification to the new user
   await sendNotification(
     staff._id,
-    "Welcome to BookAVibe! 🎉",
-    `Welcome ${staff.firstName}! Your account has been created. Please verify your email to continue.`,
+    "Registration Received! 📝",
+    `Welcome ${staff.firstName}! Your registration has been received. Please wait for admin approval.`,
     "info"
   );
 
-  // Generate tokens
-  const accessToken = generateAccessToken(staff);
-  const refreshToken = generateRefreshToken(staff);
-
-  // For first admin, auto-verify
-  if (staffCount === 0) {
-    staff.isVerified = true;
-    await staff.save();
-  }
-
   res.status(201).json({
     success: true,
-    message:
-      staffCount === 0
-        ? "Admin account created successfully!"
-        : "Registration successful! Please check your email to verify your account.",
+    message: "Registration submitted! Please wait for admin approval.",
     data: {
       staff: {
         id: staff._id,
         firstName: staff.firstName,
         lastName: staff.lastName,
         email: staff.email,
-        role: staff.role,
-        isVerified: staff.isVerified,
+        registrationStatus: staff.registrationStatus,
       },
-      tokens: {
-        accessToken,
-        refreshToken,
-      },
+      // No tokens for pending users
+      tokens: null,
+      isPending: true,
     },
   });
 });
@@ -202,13 +298,23 @@ exports.login = asyncHandler(async (req, res) => {
       password
     );
 
-    // Check email verification
-    if (!staff.isVerified) {
+    // Note: Email verification is no longer blocking login
+    // Users can login without verified email, but certain features are restricted on the frontend
+
+    // Check registration approval status
+    if (staff.registrationStatus === "pending") {
       return res.status(403).json({
         success: false,
-        message:
-          "Please verify your email before logging in. Check your inbox for the verification link.",
-        needsVerification: true,
+        message: "Your registration is pending approval. Please wait for admin to approve your account.",
+        isPending: true,
+      });
+    }
+
+    if (staff.registrationStatus === "rejected") {
+      return res.status(403).json({
+        success: false,
+        message: "Your registration has been rejected. Please contact the administrator.",
+        isRejected: true,
       });
     }
 
@@ -241,6 +347,8 @@ exports.login = asyncHandler(async (req, res) => {
           role: staff.role,
           profileImage: staff.profileImage,
           department: staff.department,
+          isEmailVerified: staff.isVerified,
+          isActive: staff.isActive,
         },
         tokens: {
           accessToken,
@@ -294,10 +402,9 @@ exports.verifyEmail = asyncHandler(async (req, res) => {
     "success"
   );
 
-  res.json({
-    success: true,
-    message: "Email verified successfully! You can now login.",
-  });
+  // Redirect to frontend login page with success message
+  const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
+  res.redirect(`${frontendURL}/login?verified=true`);
 });
 
 /**
@@ -339,9 +446,8 @@ exports.resendVerification = asyncHandler(async (req, res) => {
   await staff.save();
 
   // Send verification email
-  const verifyURL = `${
-    process.env.BACKEND_URL || "http://localhost:5000"
-  }/api/auth/verify-email/${verificationToken}`;
+  const verifyURL = `${process.env.BACKEND_URL || "http://localhost:5000"
+    }/api/auth/verify-email/${verificationToken}`;
 
   await sendEmail({
     to: staff.email,

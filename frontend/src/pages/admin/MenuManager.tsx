@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus,
   Search,
@@ -12,7 +12,9 @@ import {
   Coffee,
   Leaf,
   Flame,
-  Clock
+  Clock,
+  Upload,
+  ImageIcon
 } from 'lucide-react';
 import { menuApi, type MenuItemData } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -66,6 +68,12 @@ const MenuManager: React.FC = () => {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Image upload state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Form state
   const [formData, setFormData] = useState<MenuItemData>({
     name: '',
@@ -112,6 +120,44 @@ const MenuManager: React.FC = () => {
       tags: [],
     });
     setEditingItem(null);
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  // Handle image file selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+        toast.error('Please select a valid image file (JPEG, PNG, or WebP)');
+        return;
+      }
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Upload image to Cloudinary
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return formData.image || null;
+
+    setIsUploading(true);
+    try {
+      const response = await menuApi.uploadImage(imageFile);
+      return response.data.data.url;
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      toast.error(axiosError.response?.data?.message || 'Failed to upload image');
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const openCreateModal = () => {
@@ -134,6 +180,9 @@ const MenuManager: React.FC = () => {
       preparationTime: item.preparationTime,
       tags: item.tags,
     });
+    // Set image preview if item has an image
+    setImagePreview(item.image || null);
+    setImageFile(null);
     setShowModal(true);
   };
 
@@ -151,11 +200,26 @@ const MenuManager: React.FC = () => {
 
     setIsSaving(true);
     try {
+      // Upload image first if a new file was selected
+      let imageUrl = formData.image;
+      if (imageFile) {
+        const uploadedUrl = await uploadImage();
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        } else if (imageFile) {
+          // Image upload failed but user selected a file
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      const submitData = { ...formData, image: imageUrl };
+
       if (editingItem) {
-        await menuApi.updateItem(editingItem.id, formData);
+        await menuApi.updateItem(editingItem.id, submitData);
         toast.success('Item updated successfully');
       } else {
-        await menuApi.createItem(formData);
+        await menuApi.createItem(submitData);
         toast.success('Item created successfully');
       }
       setShowModal(false);
@@ -264,8 +328,8 @@ const MenuManager: React.FC = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white rounded-xl p-4 shadow-sm flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
+      <div className="bg-white rounded-xl p-4 shadow-sm space-y-4">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
@@ -275,18 +339,33 @@ const MenuManager: React.FC = () => {
             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
           />
         </div>
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none bg-white"
-        >
-          <option value="all">All Categories</option>
-          {CATEGORIES.map(cat => (
-            <option key={cat.value} value={cat.value}>
-              {cat.icon} {cat.label}
-            </option>
-          ))}
-        </select>
+
+        {/* Category Tabs */}
+        <div className="overflow-x-auto -mx-4 px-4">
+          <div className="flex gap-2 min-w-max">
+            <button
+              onClick={() => setFilterCategory('all')}
+              className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${filterCategory === 'all'
+                ? 'bg-amber-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-amber-50 border border-gray-200'
+                }`}
+            >
+              🍴 All Menu
+            </button>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.value}
+                onClick={() => setFilterCategory(cat.value)}
+                className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${filterCategory === cat.value
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-amber-50 border border-gray-200'
+                  }`}
+              >
+                {cat.icon} {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Menu Items */}
@@ -314,8 +393,8 @@ const MenuManager: React.FC = () => {
         <div className="space-y-6">
           {Object.entries(groupedItems).map(([category, categoryItems]) => (
             <div key={category} className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <div className="bg-gradient-to-r from-amber-100 to-orange-100 px-6 py-4">
+                <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                   <span>{getCategoryIcon(category)}</span>
                   {getCategoryLabel(category)}
                   <span className="text-sm font-normal bg-white/20 px-2 py-0.5 rounded-full ml-2">
@@ -327,9 +406,8 @@ const MenuManager: React.FC = () => {
                 {categoryItems.map(item => (
                   <div
                     key={item.id}
-                    className={`p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors ${
-                      !item.isAvailable ? 'opacity-60' : ''
-                    }`}
+                    className={`p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors ${!item.isAvailable ? 'opacity-60' : ''
+                      }`}
                   >
                     {/* Image */}
                     <div className="w-16 h-16 rounded-lg bg-amber-100 flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -382,11 +460,10 @@ const MenuManager: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleToggleAvailability(item)}
-                        className={`p-2 rounded-lg transition-colors ${
-                          item.isAvailable
-                            ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                            : 'bg-green-100 text-green-600 hover:bg-green-200'
-                        }`}
+                        className={`p-2 rounded-lg transition-colors ${item.isAvailable
+                          ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-green-100 text-green-600 hover:bg-green-200'
+                          }`}
                         title={item.isAvailable ? 'Hide from menu' : 'Show on menu'}
                       >
                         {item.isAvailable ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -510,18 +587,58 @@ const MenuManager: React.FC = () => {
                 </div>
               </div>
 
-              {/* Image URL */}
+              {/* Image Upload */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Image URL
+                  Item Image
                 </label>
-                <input
-                  type="text"
-                  value={formData.image || ''}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
-                />
+                <div className="flex items-start gap-4">
+                  {/* Image Preview */}
+                  <div className="w-24 h-24 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-gray-400" />
+                    )}
+                  </div>
+
+                  {/* Upload Controls */}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageChange}
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4" />
+                          {imagePreview ? 'Change Image' : 'Upload Image'}
+                        </>
+                      )}
+                    </button>
+                    <p className="text-xs text-gray-500 mt-2">
+                      JPEG, PNG, or WebP • Max 5MB
+                    </p>
+                    {imageFile && (
+                      <p className="text-xs text-green-600 mt-1">
+                        ✓ {imageFile.name} selected
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Dietary Options */}

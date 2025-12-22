@@ -8,11 +8,11 @@ const rateLimit = require("express-rate-limit");
 
 /**
  * General API rate limiter
- * 100 requests per 15 minutes
+ * 500 requests per 15 minutes (increased for dashboard auto-refresh)
  */
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 500, // Increased from 100 to support dashboard polling
   message: {
     success: false,
     message: "Too many requests from this IP, please try again after 15 minutes",

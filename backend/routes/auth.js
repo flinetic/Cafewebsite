@@ -23,9 +23,16 @@ const {
 } = require("../middleware/validators");
 
 /**
+ * @route   GET /api/auth/admin-exists
+ * @desc    Check if admin exists and if registration as admin is available
+ * @access  Public
+ */
+router.get("/admin-exists", authController.checkAdminExists);
+
+/**
  * @route   POST /api/auth/register
  * @desc    Register a new staff member
- * @access  Public (first user) / Admin only (subsequent)
+ * @access  Public
  */
 router.post(
   "/register",

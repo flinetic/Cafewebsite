@@ -7,7 +7,8 @@ export interface Staff {
   fullName?: string;
   email: string;
   phone?: string;
-  role: 'admin' | 'chef' | 'staff';
+  role: 'admin' | 'kitchen' | null;
+  registrationStatus?: 'pending' | 'approved' | 'rejected';
   profileImage?: string;
   department?: string;
   employeeId?: string;
@@ -68,5 +69,5 @@ export interface RegisterFormData {
   password: string;
   confirmPassword: string;
   phone?: string;
-  role?: 'admin' | 'chef' | 'staff';
+  role?: 'admin' | 'kitchen';
 }

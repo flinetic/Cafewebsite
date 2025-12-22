@@ -86,10 +86,32 @@ const allStaff = (req, res, next) => {
     });
   }
 
-  if (!["admin", "chef", "staff"].includes(req.staff.role)) {
+  if (!["admin", "kitchen"].includes(req.staff.role)) {
     return res.status(403).json({
       success: false,
       message: "Access denied. Staff privileges required.",
+    });
+  }
+
+  next();
+};
+
+/**
+ * Staff with order access (admin and kitchen)
+ * Kitchen users can view and manage orders
+ */
+const staffWithOrders = (req, res, next) => {
+  if (!req.staff) {
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
+  }
+
+  if (!["admin", "kitchen"].includes(req.staff.role)) {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Order access requires admin or kitchen role.",
     });
   }
 
@@ -130,5 +152,6 @@ module.exports = {
   adminOnly,
   adminOrChef,
   allStaff,
+  staffWithOrders,
   ownerOrAdmin,
 };

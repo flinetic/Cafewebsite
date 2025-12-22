@@ -6,21 +6,22 @@ const Table = require('../models/Table');
  */
 const createOrder = async (orderData) => {
   const { tableNumber, customerName, customerPhone, items, notes } = orderData;
-  
+
   // Verify table exists and is active
   const table = await Table.findOne({ tableNumber, isActive: true });
   if (!table) {
     throw new Error('Invalid or inactive table');
   }
-  
+
   // Calculate total amount
   const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
-  // Generate order number
-  const orderNumber = await Order.generateOrderNumber();
-  
+
+  // Generate order number and token
+  const { orderNumber, token } = await Order.generateOrderNumber();
+
   const order = new Order({
     orderNumber,
+    token,
     tableNumber,
     customerName,
     customerPhone,
@@ -29,7 +30,7 @@ const createOrder = async (orderData) => {
     notes,
     status: 'pending'
   });
-  
+
   await order.save();
   return order;
 };
@@ -39,22 +40,22 @@ const createOrder = async (orderData) => {
  */
 const getAllOrders = async (filters = {}) => {
   const query = {};
-  
+
   if (filters.status) {
     query.status = filters.status;
   }
-  
+
   if (filters.tableNumber) {
     query.tableNumber = filters.tableNumber;
   }
-  
+
   if (filters.startDate && filters.endDate) {
     query.createdAt = {
       $gte: new Date(filters.startDate),
       $lte: new Date(filters.endDate)
     };
   }
-  
+
   return Order.find(query).sort({ createdAt: -1 });
 };
 
@@ -66,21 +67,26 @@ const getOrdersByStatus = async (status) => {
 };
 
 /**
- * Get today's orders by status
+ * Get today's orders by status (supports array of statuses)
  */
 const getTodaysOrdersByStatus = async (status) => {
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-  
+
   const query = {
     createdAt: { $gte: startOfDay, $lte: endOfDay }
   };
-  
+
   if (status) {
-    query.status = status;
+    // Support for single status or array of statuses
+    if (Array.isArray(status)) {
+      query.status = { $in: status };
+    } else {
+      query.status = status;
+    }
   }
-  
+
   return Order.find(query).sort({ createdAt: -1 });
 };
 
@@ -107,6 +113,26 @@ const getOrderByNumber = async (orderNumber) => {
 };
 
 /**
+ * Mark order as preparing (kitchen starts working)
+ */
+const markAsPreparing = async (id) => {
+  const order = await Order.findById(id);
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  if (order.status !== 'pending') {
+    throw new Error('Only pending orders can be marked as preparing');
+  }
+
+  order.status = 'preparing';
+  order.preparingAt = new Date();
+  await order.save();
+
+  return order;
+};
+
+/**
  * Update order status to completed
  */
 const markAsCompleted = async (id) => {
@@ -114,15 +140,15 @@ const markAsCompleted = async (id) => {
   if (!order) {
     throw new Error('Order not found');
   }
-  
-  if (order.status !== 'pending') {
-    throw new Error('Only pending orders can be marked as completed');
+
+  if (!['pending', 'preparing'].includes(order.status)) {
+    throw new Error('Only pending or preparing orders can be marked as completed');
   }
-  
+
   order.status = 'completed';
   order.completedAt = new Date();
   await order.save();
-  
+
   return order;
 };
 
@@ -134,31 +160,31 @@ const markAsPaid = async (id) => {
   if (!order) {
     throw new Error('Order not found');
   }
-  
+
   if (order.status !== 'completed') {
     throw new Error('Only completed orders can be marked as paid');
   }
-  
+
   order.status = 'history';
   order.paidAt = new Date();
   await order.save();
-  
+
   return order;
 };
 
 /**
- * Cancel/delete order (only pending orders)
+ * Cancel/delete order (only pending or preparing orders)
  */
 const cancelOrder = async (id) => {
   const order = await Order.findById(id);
   if (!order) {
     throw new Error('Order not found');
   }
-  
-  if (order.status !== 'pending') {
-    throw new Error('Only pending orders can be cancelled');
+
+  if (!['pending', 'preparing'].includes(order.status)) {
+    throw new Error('Only pending or preparing orders can be cancelled');
   }
-  
+
   await Order.findByIdAndDelete(id);
   return { message: 'Order cancelled successfully' };
 };
@@ -176,18 +202,18 @@ const getTodaysStats = async () => {
 const getOrdersByDate = async (date) => {
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
-  
+
   const endOfDay = new Date(date);
   endOfDay.setHours(23, 59, 59, 999);
-  
+
   const orders = await Order.find({
     createdAt: { $gte: startOfDay, $lte: endOfDay },
     status: 'history'
   }).sort({ createdAt: -1 });
-  
+
   // Calculate total for the day
   const totalForDay = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-  
+
   return {
     orders,
     totalOrders: orders.length,
@@ -201,12 +227,12 @@ const getOrdersByDate = async (date) => {
 const getOrdersForTable = async (tableNumber, customerPhone) => {
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
-  
+
   return Order.find({
     tableNumber,
     customerPhone,
     createdAt: { $gte: startOfDay },
-    status: { $in: ['pending', 'completed'] }
+    status: { $in: ['pending', 'preparing', 'completed'] }
   }).sort({ createdAt: -1 });
 };
 
@@ -224,6 +250,7 @@ module.exports = {
   getTodaysOrdersByStatus,
   getOrderById,
   getOrderByNumber,
+  markAsPreparing,
   markAsCompleted,
   markAsPaid,
   cancelOrder,

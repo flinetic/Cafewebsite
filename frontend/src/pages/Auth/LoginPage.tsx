@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Eye, EyeOff, Coffee, Mail, Lock, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Coffee, Mail, Lock, Loader2, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { AxiosError } from 'axios';
 
@@ -15,13 +15,23 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [emailVerified, setEmailVerified] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check for email verification success
+  useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      setEmailVerified(true);
+      toast.success('Email verified successfully! You can now log in.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       toast.error('Please fill in all fields');
       return;
@@ -63,6 +73,16 @@ const LoginPage: React.FC = () => {
         <div className="bg-white rounded-3xl shadow-2xl p-10">
           <h2 className="text-3xl font-bold text-gray-800 mb-3">Welcome back!</h2>
           <p className="text-gray-500 mb-8 text-lg">Sign in to your account</p>
+
+          {/* Email Verified Success Banner */}
+          {emailVerified && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+              <p className="text-green-700 text-sm font-medium">
+                Your email has been verified! You can now log in.
+              </p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
@@ -108,8 +128,8 @@ const LoginPage: React.FC = () => {
 
             {/* Forgot Password */}
             <div className="flex justify-end">
-              <Link 
-                to="/forgot-password" 
+              <Link
+                to="/forgot-password"
                 className="text-sm text-purple-600 hover:text-purple-700 font-medium"
               >
                 Forgot password?

@@ -11,7 +11,8 @@ import {
   Eye,
   Loader2,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Coffee
 } from 'lucide-react';
 import { tableApi } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -59,7 +60,7 @@ const Tables: React.FC = () => {
 
   const handleCreateTable = async () => {
     const tableNumber = parseInt(newTableNumber);
-    
+
     if (!tableNumber || tableNumber < 1) {
       toast.error('Please enter a valid table number');
       return;
@@ -118,10 +119,10 @@ const Tables: React.FC = () => {
   };
 
   const handleDownloadQR = (table: Table, format: 'png' | 'svg') => {
-    const url = format === 'png' 
+    const url = format === 'png'
       ? tableApi.getQRPngUrl(table.id)
       : tableApi.getQRSvgUrl(table.id);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = `table-${table.tableNumber}-qr.${format}`;
@@ -207,7 +208,7 @@ const Tables: React.FC = () => {
             {searchTerm ? 'No tables found' : 'No tables yet'}
           </h3>
           <p className="text-gray-600 mb-6">
-            {searchTerm 
+            {searchTerm
               ? 'Try a different search term'
               : 'Create your first table to get started'}
           </p>
@@ -221,31 +222,31 @@ const Tables: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredTables.map((table) => (
             <div
               key={table.id}
               className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
             >
               {/* Table Header */}
-              <div className="p-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+              <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-2xl font-bold">Table {table.tableNumber}</h3>
+                  <h3 className="text-xl font-bold">Table {table.tableNumber}</h3>
                   <div className="flex gap-1">
                     {table.isActive ? (
-                      <CheckCircle2 className="w-5 h-5" />
+                      <CheckCircle2 className="w-4 h-4" />
                     ) : (
-                      <XCircle className="w-5 h-5" />
+                      <XCircle className="w-4 h-4" />
                     )}
                   </div>
                 </div>
-                <p className="text-xs text-amber-50">
+                <p className="text-[10px] text-amber-50">
                   {table.isActive ? 'Active' : 'Inactive'}
                 </p>
               </div>
 
               {/* QR Code Preview */}
-              <div className="p-4">
+              <div className="p-3">
                 {table.qrCodeDataUrl ? (
                   <div className="relative group">
                     <img
@@ -253,6 +254,14 @@ const Tables: React.FC = () => {
                       alt={`QR Code for Table ${table.tableNumber}`}
                       className="w-full rounded-lg border-2 border-gray-200"
                     />
+                    {/* Logo Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="bg-white p-1 rounded-full shadow-sm">
+                        <div className="w-6 h-6 bg-amber-600 rounded-full flex items-center justify-center text-white">
+                          <Coffee size={14} />
+                        </div>
+                      </div>
+                    </div>
                     <button
                       onClick={() => {
                         setSelectedTable(table);
@@ -271,7 +280,7 @@ const Tables: React.FC = () => {
               </div>
 
               {/* Actions */}
-              <div className="p-4 border-t border-gray-100 space-y-2">
+              <div className="p-3 border-t border-gray-100 space-y-2">
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => handleDownloadQR(table, 'png')}
@@ -288,15 +297,14 @@ const Tables: React.FC = () => {
                     SVG
                   </button>
                 </div>
-                
+
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => handleToggleActive(table)}
-                    className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
-                      table.isActive
-                        ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                        : 'bg-green-50 text-green-600 hover:bg-green-100'
-                    }`}
+                    className={`flex items-center justify-center p-2 rounded-lg transition-colors ${table.isActive
+                      ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                      : 'bg-green-50 text-green-600 hover:bg-green-100'
+                      }`}
                     title={table.isActive ? 'Deactivate' : 'Activate'}
                   >
                     {table.isActive ? <PowerOff size={18} /> : <Power size={18} />}
@@ -330,7 +338,7 @@ const Tables: React.FC = () => {
             <p className="text-gray-600 mb-6">
               Enter a table number to create a new table with its QR code
             </p>
-            
+
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Table Number
@@ -405,12 +413,22 @@ const Tables: React.FC = () => {
               </button>
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-6 mb-6">
-              <img
-                src={selectedTable.qrCodeDataUrl}
-                alt={`QR Code for Table ${selectedTable.tableNumber}`}
-                className="w-full max-w-sm mx-auto"
-              />
+            <div className="bg-gray-50 rounded-xl p-6 mb-6 flex justify-center">
+              <div className="relative">
+                <img
+                  src={selectedTable.qrCodeDataUrl}
+                  alt={`QR Code for Table ${selectedTable.tableNumber}`}
+                  className="w-full max-w-sm mx-auto"
+                />
+                {/* Logo Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="bg-white p-2 rounded-full shadow-md">
+                    <div className="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center text-white">
+                      <Coffee size={24} />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-3">

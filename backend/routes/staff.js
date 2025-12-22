@@ -113,6 +113,39 @@ router.delete("/notifications", staffController.clearAllNotifications);
 // ==========================================
 
 /**
+ * @route   GET /api/staff/pending
+ * @desc    Get pending registrations
+ * @access  Private/Admin
+ */
+router.get("/pending", adminOnly, staffController.getPendingRegistrations);
+
+/**
+ * @route   PUT /api/staff/:id/approve
+ * @desc    Approve registration and assign role
+ * @access  Private/Admin
+ */
+router.put(
+  "/:id/approve",
+  adminOnly,
+  mongoIdRules,
+  validate,
+  staffController.approveRegistration
+);
+
+/**
+ * @route   PUT /api/staff/:id/reject
+ * @desc    Reject registration
+ * @access  Private/Admin
+ */
+router.put(
+  "/:id/reject",
+  adminOnly,
+  mongoIdRules,
+  validate,
+  staffController.rejectRegistration
+);
+
+/**
  * @route   GET /api/staff/stats
  * @desc    Get staff statistics
  * @access  Private/Admin

@@ -9,17 +9,17 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
  */
 const createOrder = asyncHandler(async (req, res) => {
   const { tableNumber, customerName, customerPhone, items, notes } = req.body;
-  
+
   if (!tableNumber || !customerName || !customerPhone || !items || items.length === 0) {
     return errorResponse(res, 400, 'Please provide all required fields');
   }
-  
+
   // Validate phone number format (basic validation)
   const phoneRegex = /^[0-9]{10}$/;
   if (!phoneRegex.test(customerPhone.replace(/\D/g, ''))) {
     return errorResponse(res, 400, 'Please provide a valid 10-digit phone number');
   }
-  
+
   const order = await orderService.createOrder({
     tableNumber,
     customerName,
@@ -27,7 +27,7 @@ const createOrder = asyncHandler(async (req, res) => {
     items,
     notes
   });
-  
+
   successResponse(res, 201, 'Order placed successfully', order);
 });
 
@@ -38,14 +38,14 @@ const createOrder = asyncHandler(async (req, res) => {
  */
 const getAllOrders = asyncHandler(async (req, res) => {
   const { status, tableNumber, startDate, endDate } = req.query;
-  
+
   const orders = await orderService.getAllOrders({
     status,
     tableNumber: tableNumber ? parseInt(tableNumber) : undefined,
     startDate,
     endDate
   });
-  
+
   successResponse(res, 200, 'Orders retrieved', orders);
 });
 
@@ -56,19 +56,19 @@ const getAllOrders = asyncHandler(async (req, res) => {
  */
 const getTodaysOrders = asyncHandler(async (req, res) => {
   const { status } = req.query;
-  
+
   const orders = await orderService.getTodaysOrdersByStatus(status);
-  
+
   successResponse(res, 200, 'Orders retrieved', orders);
 });
 
 /**
- * @desc    Get pending orders
+ * @desc    Get pending orders (includes pending and preparing)
  * @route   GET /api/orders/pending
  * @access  Private/Admin
  */
 const getPendingOrders = asyncHandler(async (req, res) => {
-  const orders = await orderService.getTodaysOrdersByStatus('pending');
+  const orders = await orderService.getTodaysOrdersByStatus(['pending', 'preparing']);
   successResponse(res, 200, 'Pending orders retrieved', orders);
 });
 
@@ -89,12 +89,12 @@ const getCompletedOrders = asyncHandler(async (req, res) => {
  */
 const getHistoryOrders = asyncHandler(async (req, res) => {
   const { date } = req.query;
-  
+
   // Default to today if no date provided
   const queryDate = date ? new Date(date) : new Date();
-  
+
   const result = await orderService.getOrdersByDate(queryDate);
-  
+
   successResponse(res, 200, 'History retrieved', result);
 });
 
@@ -119,9 +119,19 @@ const getOrderById = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Mark order as preparing (kitchen starts)
+ * @route   PATCH /api/orders/:id/preparing
+ * @access  Private/Staff
+ */
+const markAsPreparing = asyncHandler(async (req, res) => {
+  const order = await orderService.markAsPreparing(req.params.id);
+  successResponse(res, 200, 'Order marked as preparing', order);
+});
+
+/**
  * @desc    Mark order as completed
  * @route   PATCH /api/orders/:id/complete
- * @access  Private/Admin
+ * @access  Private/Staff
  */
 const markAsCompleted = asyncHandler(async (req, res) => {
   const order = await orderService.markAsCompleted(req.params.id);
@@ -156,16 +166,16 @@ const cancelOrder = asyncHandler(async (req, res) => {
 const getTableOrders = asyncHandler(async (req, res) => {
   const { tableNumber } = req.params;
   const { phone } = req.query;
-  
+
   if (!phone) {
     return errorResponse(res, 400, 'Phone number is required');
   }
-  
+
   const orders = await orderService.getOrdersForTable(
     parseInt(tableNumber),
     phone.replace(/\D/g, '')
   );
-  
+
   successResponse(res, 200, 'Orders retrieved', orders);
 });
 
@@ -177,19 +187,19 @@ const getTableOrders = asyncHandler(async (req, res) => {
 const verifyTable = asyncHandler(async (req, res) => {
   const { tableNumber } = req.params;
   const Table = require('../models/Table');
-  
-  const table = await Table.findOne({ 
-    tableNumber: parseInt(tableNumber), 
-    isActive: true 
+
+  const table = await Table.findOne({
+    tableNumber: parseInt(tableNumber),
+    isActive: true
   });
-  
+
   if (!table) {
     return errorResponse(res, 404, 'Invalid or inactive table');
   }
-  
-  successResponse(res, 200, 'Table verified', { 
+
+  successResponse(res, 200, 'Table verified', {
     tableNumber: table.tableNumber,
-    isActive: table.isActive 
+    isActive: table.isActive
   });
 });
 
@@ -202,6 +212,7 @@ module.exports = {
   getHistoryOrders,
   getTodaysStats,
   getOrderById,
+  markAsPreparing,
   markAsCompleted,
   markAsPaid,
   cancelOrder,

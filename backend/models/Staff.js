@@ -43,11 +43,28 @@ const staffSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: {
-        values: ["admin", "chef", "staff"],
-        message: "Role must be admin, chef, or staff",
+        values: ["admin", "kitchen"],
+        message: "Role must be admin or kitchen",
       },
-      default: "staff",
-      required: true,
+      default: null,
+    },
+
+    // Registration approval status
+    registrationStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+
+    // Who approved this registration
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff",
+    },
+
+    // When this registration was approved
+    approvedAt: {
+      type: Date,
     },
 
     // Profile Information
@@ -214,7 +231,10 @@ staffSchema.pre("save", async function (next) {
 // Pre-save middleware to generate employee ID
 staffSchema.pre("save", async function (next) {
   if (this.isNew && !this.employeeId) {
-    const prefix = this.role.toUpperCase().substring(0, 3);
+    // Handle null role (pending approval users)
+    const prefix = this.role
+      ? this.role.toUpperCase().substring(0, 3)
+      : "PND"; // "Pending" prefix for users awaiting role assignment
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.floor(Math.random() * 1000)
       .toString()
@@ -317,6 +337,8 @@ staffSchema.methods.toJSON = function () {
   delete staffObject.resetPasswordExpire;
   delete staffObject.loginAttempts;
   delete staffObject.lockUntil;
+  // Map isVerified to isEmailVerified for frontend compatibility
+  staffObject.isEmailVerified = staffObject.isVerified;
   return staffObject;
 };
 

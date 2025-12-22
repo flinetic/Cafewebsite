@@ -11,45 +11,35 @@ class QRService {
      * @returns {Promise<{svg: string, png: Buffer, dataUrl: string}>}
      */
     async generateQRCode(tableNumber, baseUrl) {
-        // Generate URL with table path format: /table/:tableNumber/menu
-        const menuUrl = `${baseUrl}/table/${tableNumber}/menu`;
+        // Generate URL with query parameter format: /menu?table=tableNumber
+        const menuUrl = `${baseUrl}/menu?table=${tableNumber}`;
+
+        const options = {
+            errorCorrectionLevel: 'H',
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            },
+            width: 300
+        };
 
         try {
             // Generate QR codes in different formats
             const [svg, dataUrl, png] = await Promise.all([
                 // SVG format
-                QRCode.toString(menuUrl, {
-                    type: 'svg',
-                    width: 300,
-                    margin: 2,
-                    color: {
-                        dark: '#000000',
-                        light: '#FFFFFF'
-                    }
-                }),
+                QRCode.toString(menuUrl, { ...options, type: 'svg' }),
                 // Data URL format (for displaying in browser)
-                QRCode.toDataURL(menuUrl, {
-                    width: 300,
-                    margin: 2,
-                    color: {
-                        dark: '#000000',
-                        light: '#FFFFFF'
-                    }
-                }),
+                QRCode.toDataURL(menuUrl, options),
                 // PNG buffer (for downloading)
-                QRCode.toBuffer(menuUrl, {
-                    type: 'png',
-                    width: 300,
-                    margin: 2,
-                    color: {
-                        dark: '#000000',
-                        light: '#FFFFFF'
-                    }
-                })
+                QRCode.toBuffer(menuUrl, { ...options, type: 'png' })
             ]);
 
+            // Add logo to SVG
+            const svgWithLogo = this._addLogoToSVG(svg);
+
             return {
-                svg,
+                svg: svgWithLogo,
                 png,
                 dataUrl,
                 url: menuUrl
@@ -67,7 +57,8 @@ class QRService {
         return QRCode.toBuffer(menuUrl, {
             type: 'png',
             width: 300,
-            margin: 2
+            margin: 2,
+            errorCorrectionLevel: 'H'
         });
     }
 
@@ -76,11 +67,30 @@ class QRService {
      */
     async generateSVG(tableNumber, baseUrl) {
         const menuUrl = `${baseUrl}?table=${tableNumber}`;
-        return QRCode.toString(menuUrl, {
+        const svg = await QRCode.toString(menuUrl, {
             type: 'svg',
             width: 300,
-            margin: 2
+            margin: 2,
+            errorCorrectionLevel: 'H'
         });
+        return this._addLogoToSVG(svg);
+    }
+
+    /**
+     * Helper to add logo to SVG string
+     * @private
+     */
+    _addLogoToSVG(svgString) {
+        // Simple demo: Inject a coffee emoji in the center
+        // The QR code is 300x300 (or whatever viewbox is). 
+        // We'll assume standard viewbox or injected percentage.
+        // Re-parsing string to find closing tag
+        const closingTag = '</svg>';
+        const logo = `
+            <rect x="35%" y="35%" width="30%" height="30%" fill="white" rx="15" />
+            <text x="50%" y="54%" font-size="60" text-anchor="middle" dominant-baseline="middle">☕</text>
+        `;
+        return svgString.replace(closingTag, `${logo}${closingTag}`);
     }
 }
 

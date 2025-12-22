@@ -111,3 +111,25 @@ exports.updateOperatingHours = asyncHandler(async (req, res) => {
         data: config
     });
 });
+
+// @desc    Update admin limit
+// @route   PUT /api/config/admin-limit
+// @access  Private/Admin
+exports.updateAdminLimit = asyncHandler(async (req, res) => {
+    const { maxAdminLimit } = req.body;
+
+    if (!maxAdminLimit || maxAdminLimit < 1 || maxAdminLimit > 10) {
+        return res.status(400).json({
+            success: false,
+            message: 'Admin limit must be between 1 and 10'
+        });
+    }
+
+    const config = await configService.updateConfig({ maxAdminLimit });
+
+    res.json({
+        success: true,
+        message: 'Admin limit updated successfully',
+        data: config
+    });
+});

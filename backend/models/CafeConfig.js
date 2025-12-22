@@ -43,6 +43,13 @@ const cafeConfigSchema = new mongoose.Schema({
         max: [5000, 'Radius cannot exceed 5000 meters'],
         default: 50
     },
+    // Maximum number of admin accounts allowed
+    maxAdminLimit: {
+        type: Number,
+        min: [1, 'At least 1 admin is required'],
+        max: [10, 'Cannot have more than 10 admins'],
+        default: 1
+    },
     menuBaseUrl: {
         type: String,
         required: true,

@@ -3,6 +3,7 @@ const router = express.Router();
 const menuController = require('../controllers/menuController');
 const { protect } = require('../middleware/auth');
 const { adminOnly } = require('../middleware/roleAuth');
+const { uploadImage: uploadMiddleware, handleUploadError } = require('../middleware/upload');
 
 // ==================== Public Routes ====================
 // These routes are accessible to all customers
@@ -31,6 +32,9 @@ router.get('/:id', menuController.getItemById);
 // Get all items (including unavailable) - Admin only
 router.get('/admin/all', protect, adminOnly, menuController.getAllItems);
 
+// Upload menu item image - Admin only
+router.post('/upload-image', protect, adminOnly, uploadMiddleware.single('image'), handleUploadError, menuController.uploadImage);
+
 // Create new item - Admin only
 router.post('/', protect, adminOnly, menuController.createItem);
 
@@ -47,3 +51,4 @@ router.patch('/:id/toggle', protect, adminOnly, menuController.toggleAvailabilit
 router.put('/sort-order', protect, adminOnly, menuController.updateSortOrder);
 
 module.exports = router;
+

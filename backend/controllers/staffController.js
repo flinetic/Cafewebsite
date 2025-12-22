@@ -5,6 +5,7 @@
  */
 
 const Staff = require("../models/Staff");
+const CafeConfig = require("../models/CafeConfig");
 const asyncHandler = require("../middleware/asyncHandler");
 const { sendNotification } = require("../utils/sendNotification");
 
@@ -337,10 +338,10 @@ exports.updateStaff = asyncHandler(async (req, res) => {
 exports.updateStaffRole = asyncHandler(async (req, res) => {
   const { role } = req.body;
 
-  if (!role || !["admin", "chef", "staff"].includes(role)) {
+  if (!role || !["admin", "kitchen"].includes(role)) {
     return res.status(400).json({
       success: false,
-      message: "Invalid role. Must be admin, chef, or staff",
+      message: "Invalid role. Must be admin or kitchen",
     });
   }
 
@@ -682,5 +683,139 @@ exports.clearAllNotifications = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: "All notifications cleared",
+  });
+});
+
+/**
+ * @desc    Get pending registrations (Admin only)
+ * @route   GET /api/staff/pending
+ * @access  Private/Admin
+ */
+exports.getPendingRegistrations = asyncHandler(async (req, res) => {
+  const pendingStaff = await Staff.find({ registrationStatus: "pending" })
+    .select("-password")
+    .sort("-createdAt");
+
+  res.json({
+    success: true,
+    data: {
+      pending: pendingStaff,
+      count: pendingStaff.length,
+    },
+  });
+});
+
+/**
+ * @desc    Approve registration and assign role (Admin only)
+ * @route   PUT /api/staff/:id/approve
+ * @access  Private/Admin
+ */
+exports.approveRegistration = asyncHandler(async (req, res) => {
+  const { role } = req.body;
+
+  // Validate role
+  if (!role || !["admin", "kitchen"].includes(role)) {
+    return res.status(400).json({
+      success: false,
+      message: "Please specify a valid role (admin or kitchen)",
+    });
+  }
+
+  // Find the pending staff member
+  const staff = await Staff.findById(req.params.id);
+
+  if (!staff) {
+    return res.status(404).json({
+      success: false,
+      message: "Staff member not found",
+    });
+  }
+
+  if (staff.registrationStatus !== "pending") {
+    return res.status(400).json({
+      success: false,
+      message: "This registration is not pending",
+    });
+  }
+
+  // If assigning admin role, check the limit
+  if (role === "admin") {
+    const config = await CafeConfig.getConfig();
+    const adminCount = await Staff.countDocuments({
+      role: "admin",
+      registrationStatus: "approved",
+    });
+
+    if (adminCount >= config.maxAdminLimit) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot assign admin role. Maximum admin limit (${config.maxAdminLimit}) reached.`,
+      });
+    }
+  }
+
+  // Approve the registration
+  staff.role = role;
+  staff.registrationStatus = "approved";
+  staff.approvedBy = req.staff.id;
+  staff.approvedAt = new Date();
+  // Note: Email verification is still required - user must verify their email separately
+  await staff.save();
+
+  // Notify the user
+  await sendNotification(
+    staff._id,
+    "Registration Approved! \uD83C\uDF89",
+    `Your registration has been approved. You are now a ${role}. You can login to your account.`,
+    "success"
+  );
+
+  res.json({
+    success: true,
+    message: "Registration approved successfully",
+    data: { staff },
+  });
+});
+
+/**
+ * @desc    Reject registration (Admin only)
+ * @route   PUT /api/staff/:id/reject
+ * @access  Private/Admin
+ */
+exports.rejectRegistration = asyncHandler(async (req, res) => {
+  const { reason } = req.body;
+
+  const staff = await Staff.findById(req.params.id);
+
+  if (!staff) {
+    return res.status(404).json({
+      success: false,
+      message: "Staff member not found",
+    });
+  }
+
+  if (staff.registrationStatus !== "pending") {
+    return res.status(400).json({
+      success: false,
+      message: "This registration is not pending",
+    });
+  }
+
+  // Reject the registration
+  staff.registrationStatus = "rejected";
+  await staff.save();
+
+  // Notify the user
+  await sendNotification(
+    staff._id,
+    "Registration Rejected",
+    reason || "Your registration has been rejected. Please contact the administrator.",
+    "error"
+  );
+
+  res.json({
+    success: true,
+    message: "Registration rejected",
+    data: { staff },
   });
 });

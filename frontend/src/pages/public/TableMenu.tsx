@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Search,
   Loader2,
@@ -14,9 +14,12 @@ import {
   AlertCircle,
   CheckCircle,
   User,
-  Phone
+  Phone,
+  UtensilsCrossed,
+  Tag,
+  ClipboardList
 } from 'lucide-react';
-import { menuApi, orderApi } from '../../services/api';
+import { menuApi, orderApi, offerApi } from '../../services/api';
 import { useCart } from '../../context/CartContext';
 import toast from 'react-hot-toast';
 import type { AxiosError } from 'axios';
@@ -43,6 +46,18 @@ interface ErrorResponse {
   message: string;
 }
 
+interface Offer {
+  id: string;
+  title: string;
+  description: string;
+  discountType: 'percentage' | 'flat' | 'bogo';
+  discountValue: number;
+  minimumOrder: number;
+  code: string | null;
+  validFrom: string;
+  validTo: string;
+}
+
 const CATEGORIES = [
   { value: 'appetizers', label: 'Appetizers', icon: '🥗' },
   { value: 'main-course', label: 'Main Course', icon: '🍽️' },
@@ -60,10 +75,14 @@ const getCategoryIcon = (value: string) => {
   return CATEGORIES.find(c => c.value === value)?.icon || '🍴';
 };
 
+type MainTab = 'menu' | 'offers' | 'orders';
+
 const TableMenu: React.FC = () => {
   const { tableNumber: tableParam } = useParams<{ tableNumber: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const tableNumber = parseInt(tableParam || '0');
+
+  const tableNumber = parseInt(tableParam || searchParams.get('table') || '0');
 
   const {
     items: cartItems,
@@ -80,9 +99,11 @@ const TableMenu: React.FC = () => {
   } = useCart();
 
   const [menuItems, setMenuItems] = useState<GroupedMenu>({});
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [mainTab, setMainTab] = useState<MainTab>('menu');
   const [error, setError] = useState<string | null>(null);
   const [showCart, setShowCart] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -90,7 +111,6 @@ const TableMenu: React.FC = () => {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [tableValid, setTableValid] = useState(false);
 
-  // Registration form
   const [regName, setRegName] = useState(customerInfo?.name || '');
   const [regPhone, setRegPhone] = useState(customerInfo?.phone || '');
 
@@ -104,21 +124,23 @@ const TableMenu: React.FC = () => {
   }, [tableNumber]);
 
   useEffect(() => {
-    if (tableValid && !isRegistered) {
+    if (tableValid && !isRegistered && mainTab === 'orders') {
       setShowRegisterModal(true);
     }
-  }, [tableValid, isRegistered]);
+  }, [tableValid, isRegistered, mainTab]);
 
   const verifyTableAndFetchMenu = async () => {
     try {
-      // Verify table exists
       await orderApi.verifyTable(tableNumber);
       setTableValid(true);
       setTableNumber(tableNumber);
 
-      // Fetch menu
-      const response = await menuApi.getMenuGrouped();
-      setMenuItems(response.data.data);
+      const [menuResponse, offersResponse] = await Promise.all([
+        menuApi.getMenuGrouped(),
+        offerApi.getActiveOffers()
+      ]);
+      setMenuItems(menuResponse.data.data);
+      setOffers(offersResponse.data.data || []);
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
       setError(axiosError.response?.data?.message || 'Invalid table or failed to load menu');
@@ -147,6 +169,10 @@ const TableMenu: React.FC = () => {
   };
 
   const handleAddToCart = (item: MenuItem) => {
+    if (!isRegistered) {
+      setShowRegisterModal(true);
+      return;
+    }
     addItem({
       menuItemId: item.id,
       name: item.name,
@@ -197,11 +223,9 @@ const TableMenu: React.FC = () => {
     }
   };
 
-  // Get all items for filtering
   const allItems = Object.values(menuItems).flat();
   const availableCategories = Object.keys(menuItems);
 
-  // Filter items based on search and category
   const getFilteredItems = () => {
     let items = allItems;
 
@@ -221,7 +245,6 @@ const TableMenu: React.FC = () => {
 
   const filteredItems = getFilteredItems();
 
-  // Group filtered items by category for display
   const groupedFilteredItems = filteredItems.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
@@ -233,6 +256,119 @@ const TableMenu: React.FC = () => {
   const getItemQuantityInCart = (menuItemId: string) => {
     const cartItem = cartItems.find(item => item.menuItemId === menuItemId);
     return cartItem?.quantity || 0;
+  };
+
+  // Render menu item card (view-only for Menu tab)
+  const renderMenuItemCard = (item: MenuItem) => (
+    <div
+      key={item.id}
+      className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100"
+    >
+      {/* Image */}
+      <div className="h-32 bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
+        {item.image ? (
+          <img
+            src={item.image}
+            alt={item.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-4xl">{getCategoryIcon(item.category)}</span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-3">
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <h3 className="font-semibold text-gray-800 text-sm leading-tight">
+            {item.name}
+          </h3>
+          <div className="flex gap-1 flex-shrink-0">
+            {item.isVegetarian && <Leaf size={14} className="text-green-600" />}
+            {item.isSpicy && <Flame size={14} className="text-red-600" />}
+          </div>
+        </div>
+        <p className="text-gray-500 text-xs line-clamp-2 mb-2">
+          {item.description || 'Delicious!'}
+        </p>
+        <span className="text-lg font-bold text-amber-600">₹{item.price}</span>
+      </div>
+    </div>
+  );
+
+  // Render order item card (with add to cart for Orders tab)
+  const renderOrderItemCard = (item: MenuItem) => {
+    const quantityInCart = getItemQuantityInCart(item.id);
+
+    return (
+      <div
+        key={item.id}
+        className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 flex"
+      >
+        {/* Image */}
+        <div className="w-24 h-24 bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center flex-shrink-0">
+          {item.image ? (
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-3xl">{getCategoryIcon(item.category)}</span>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
+          <div>
+            <div className="flex items-start gap-1 mb-1">
+              <h3 className="font-semibold text-gray-800 text-sm leading-tight truncate">
+                {item.name}
+              </h3>
+              <div className="flex gap-0.5 flex-shrink-0">
+                {item.isVegetarian && <Leaf size={12} className="text-green-600" />}
+                {item.isSpicy && <Flame size={12} className="text-red-600" />}
+              </div>
+            </div>
+            <p className="text-gray-500 text-xs line-clamp-1 mb-1">
+              {item.description || 'Delicious!'}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-amber-600">₹{item.price}</span>
+
+            {quantityInCart > 0 ? (
+              <div className="flex items-center gap-2 bg-amber-100 rounded-lg">
+                <button
+                  onClick={() => updateQuantity(item.id, quantityInCart - 1)}
+                  className="p-1.5 text-amber-700 hover:bg-amber-200 rounded-l-lg transition-colors"
+                >
+                  <Minus size={16} />
+                </button>
+                <span className="font-semibold text-amber-800 min-w-[20px] text-center">
+                  {quantityInCart}
+                </span>
+                <button
+                  onClick={() => updateQuantity(item.id, quantityInCart + 1)}
+                  className="p-1.5 text-amber-700 hover:bg-amber-200 rounded-r-lg transition-colors"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => handleAddToCart(item)}
+                className="px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium flex items-center gap-1"
+              >
+                <Plus size={14} />
+                Add
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -268,10 +404,10 @@ const TableMenu: React.FC = () => {
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold">BookAVibe Menu</h1>
+              <h1 className="text-lg font-bold">BookAVibe Menu</h1>
               <p className="text-amber-100 text-sm">Table {tableNumber}</p>
             </div>
             {customerInfo && (
@@ -282,172 +418,224 @@ const TableMenu: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Main Tabs */}
+        <div className="bg-white/10 backdrop-blur-sm">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex">
+              <button
+                onClick={() => setMainTab('menu')}
+                className={`flex-1 py-3 px-4 font-medium text-sm flex items-center justify-center gap-2 border-b-2 transition-colors ${mainTab === 'menu'
+                  ? 'border-white text-white'
+                  : 'border-transparent text-white/70 hover:text-white'
+                  }`}
+              >
+                <UtensilsCrossed size={18} />
+                Menu
+              </button>
+              <button
+                onClick={() => setMainTab('offers')}
+                className={`flex-1 py-3 px-4 font-medium text-sm flex items-center justify-center gap-2 border-b-2 transition-colors ${mainTab === 'offers'
+                  ? 'border-white text-white'
+                  : 'border-transparent text-white/70 hover:text-white'
+                  }`}
+              >
+                <Tag size={18} />
+                Offers
+              </button>
+              <button
+                onClick={() => setMainTab('orders')}
+                className={`flex-1 py-3 px-4 font-medium text-sm flex items-center justify-center gap-2 border-b-2 transition-colors ${mainTab === 'orders'
+                  ? 'border-white text-white'
+                  : 'border-transparent text-white/70 hover:text-white'
+                  }`}
+              >
+                <ClipboardList size={18} />
+                Orders
+                {cartItems.length > 0 && (
+                  <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {getTotalItems()}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search menu items..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none bg-white shadow-sm"
-            />
+        {(mainTab === 'menu' || mainTab === 'orders') && (
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search menu items..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none bg-white shadow-sm"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Category Tabs */}
-        <div className="overflow-x-auto -mx-4 px-4 mb-6">
-          <div className="flex gap-2 min-w-max">
-            <button
-              onClick={() => setActiveCategory('all')}
-              className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${
-                activeCategory === 'all'
+        {/* Category Tabs for Menu and Orders */}
+        {(mainTab === 'menu' || mainTab === 'orders') && (
+          <div className="overflow-x-auto -mx-4 px-4 mb-6">
+            <div className="flex gap-2 min-w-max">
+              <button
+                onClick={() => setActiveCategory('all')}
+                className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${activeCategory === 'all'
                   ? 'bg-amber-600 text-white'
                   : 'bg-white text-gray-700 hover:bg-amber-50 border border-gray-200'
-              }`}
-            >
-              🍴 All
-            </button>
-            {availableCategories.map(category => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${
-                  activeCategory === category
+                  }`}
+              >
+                🍴 All
+              </button>
+              {availableCategories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setActiveCategory(category)}
+                  className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${activeCategory === category
                     ? 'bg-amber-600 text-white'
                     : 'bg-white text-gray-700 hover:bg-amber-50 border border-gray-200'
-                }`}
-              >
-                {getCategoryIcon(category)} {getCategoryLabel(category)}
-              </button>
-            ))}
+                    }`}
+                >
+                  {getCategoryIcon(category)} {getCategoryLabel(category)}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Menu Content */}
-        {filteredItems.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-            <Coffee className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              {searchTerm ? 'No items found' : 'No menu items available'}
-            </h3>
-            <p className="text-gray-600">
-              {searchTerm
-                ? 'Try a different search term'
-                : 'Check back soon for our delicious menu!'}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {Object.entries(groupedFilteredItems).map(([category, items]) => (
-              <div key={category}>
-                {/* Category Header */}
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">{getCategoryIcon(category)}</span>
-                  <h2 className="text-xl font-bold text-gray-800">
-                    {getCategoryLabel(category)}
-                  </h2>
-                  <div className="flex-1 h-px bg-gradient-to-r from-amber-200 to-transparent"></div>
-                </div>
-
-                {/* Items Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {items.map(item => {
-                    const quantityInCart = getItemQuantityInCart(item.id);
-                    
-                    return (
-                      <div
-                        key={item.id}
-                        className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 flex"
-                      >
-                        {/* Image */}
-                        <div className="w-24 h-24 bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center flex-shrink-0">
-                          {item.image ? (
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-3xl">{getCategoryIcon(item.category)}</span>
-                          )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
-                          <div>
-                            {/* Name and Badges */}
-                            <div className="flex items-start gap-1 mb-1">
-                              <h3 className="font-semibold text-gray-800 text-sm leading-tight truncate">
-                                {item.name}
-                              </h3>
-                              <div className="flex gap-0.5 flex-shrink-0">
-                                {item.isVegetarian && (
-                                  <Leaf size={12} className="text-green-600" />
-                                )}
-                                {item.isSpicy && (
-                                  <Flame size={12} className="text-red-600" />
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Description */}
-                            <p className="text-gray-500 text-xs line-clamp-1 mb-1">
-                              {item.description || 'Delicious!'}
-                            </p>
-                          </div>
-
-                          {/* Price and Add Button */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-amber-600">
-                              ₹{item.price}
-                            </span>
-
-                            {quantityInCart > 0 ? (
-                              <div className="flex items-center gap-2 bg-amber-100 rounded-lg">
-                                <button
-                                  onClick={() => updateQuantity(item.id, quantityInCart - 1)}
-                                  className="p-1.5 text-amber-700 hover:bg-amber-200 rounded-l-lg transition-colors"
-                                >
-                                  <Minus size={16} />
-                                </button>
-                                <span className="font-semibold text-amber-800 min-w-[20px] text-center">
-                                  {quantityInCart}
-                                </span>
-                                <button
-                                  onClick={() => updateQuantity(item.id, quantityInCart + 1)}
-                                  className="p-1.5 text-amber-700 hover:bg-amber-200 rounded-r-lg transition-colors"
-                                >
-                                  <Plus size={16} />
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => handleAddToCart(item)}
-                                className="px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium flex items-center gap-1"
-                              >
-                                <Plus size={14} />
-                                Add
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+        {/* MENU TAB - View Only */}
+        {mainTab === 'menu' && (
+          <>
+            {filteredItems.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+                <Coffee className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  {searchTerm ? 'No items found' : 'No menu items available'}
+                </h3>
+                <p className="text-gray-600">
+                  {searchTerm ? 'Try a different search term' : 'Check back soon for our delicious menu!'}
+                </p>
               </div>
-            ))}
-          </div>
+            ) : (
+              <div className="space-y-6">
+                {Object.entries(groupedFilteredItems).map(([category, items]) => (
+                  <div key={category}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">{getCategoryIcon(category)}</span>
+                      <h2 className="text-xl font-bold text-gray-800">
+                        {getCategoryLabel(category)}
+                      </h2>
+                      <div className="flex-1 h-px bg-gradient-to-r from-amber-200 to-transparent"></div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {items.map(item => renderMenuItemCard(item))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* OFFERS TAB */}
+        {mainTab === 'offers' && (
+          <>
+            {offers.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+                <Tag className="w-16 h-16 text-amber-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">No Offers Available</h3>
+                <p className="text-gray-600">
+                  Check back soon for exciting deals and discounts!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {offers.map(offer => (
+                  <div
+                    key={offer.id}
+                    className="bg-white rounded-xl shadow-sm overflow-hidden border border-amber-200"
+                  >
+                    {/* Offer Header */}
+                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-white">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-2xl font-bold">
+                          {offer.discountType === 'percentage'
+                            ? `${offer.discountValue}% OFF`
+                            : offer.discountType === 'flat'
+                              ? `₹${offer.discountValue} OFF`
+                              : 'Buy 1 Get 1'}
+                        </span>
+                        {offer.code && (
+                          <span className="bg-white/20 px-2 py-1 rounded text-sm font-mono">
+                            {offer.code}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-semibold">{offer.title}</h3>
+                    </div>
+
+                    {/* Offer Content */}
+                    <div className="p-4">
+                      {offer.description && (
+                        <p className="text-gray-600 text-sm mb-3">{offer.description}</p>
+                      )}
+                      <div className="space-y-1 text-xs text-gray-500">
+                        <p>Valid: {new Date(offer.validFrom).toLocaleDateString()} - {new Date(offer.validTo).toLocaleDateString()}</p>
+                        {offer.minimumOrder > 0 && (
+                          <p>Min. order: ₹{offer.minimumOrder}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ORDERS TAB - With Add to Cart */}
+        {mainTab === 'orders' && (
+          <>
+            {filteredItems.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+                <Coffee className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  {searchTerm ? 'No items found' : 'No menu items available'}
+                </h3>
+                <p className="text-gray-600">
+                  {searchTerm ? 'Try a different search term' : 'Check back soon for our delicious menu!'}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {Object.entries(groupedFilteredItems).map(([category, items]) => (
+                  <div key={category}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">{getCategoryIcon(category)}</span>
+                      <h2 className="text-xl font-bold text-gray-800">
+                        {getCategoryLabel(category)}
+                      </h2>
+                      <div className="flex-1 h-px bg-gradient-to-r from-amber-200 to-transparent"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {items.map(item => renderOrderItemCard(item))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Cart FAB */}
-      {cartItems.length > 0 && (
+      {/* Cart FAB - Only in Orders tab */}
+      {mainTab === 'orders' && cartItems.length > 0 && (
         <button
           onClick={() => setShowCart(true)}
           className="fixed bottom-6 right-6 bg-amber-600 text-white p-4 rounded-full shadow-lg hover:bg-amber-700 transition-all z-50 flex items-center gap-2"
@@ -459,8 +647,8 @@ const TableMenu: React.FC = () => {
         </button>
       )}
 
-      {/* Cart Bottom Bar */}
-      {cartItems.length > 0 && !showCart && (
+      {/* Cart Bottom Bar - Only in Orders tab */}
+      {mainTab === 'orders' && cartItems.length > 0 && !showCart && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <div>
@@ -485,7 +673,6 @@ const TableMenu: React.FC = () => {
             className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Cart Header */}
             <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-amber-500 to-orange-500 text-white">
               <div>
                 <h2 className="text-xl font-bold">Your Cart</h2>
@@ -499,7 +686,6 @@ const TableMenu: React.FC = () => {
               </button>
             </div>
 
-            {/* Cart Items */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {cartItems.map(item => (
                 <div key={item.menuItemId} className="bg-gray-50 rounded-lg p-3">
@@ -549,7 +735,6 @@ const TableMenu: React.FC = () => {
               ))}
             </div>
 
-            {/* Cart Footer */}
             <div className="border-t border-gray-200 p-4 space-y-4 bg-gray-50">
               <div className="flex justify-between items-center text-lg">
                 <span className="font-medium text-gray-700">Total</span>
@@ -588,7 +773,7 @@ const TableMenu: React.FC = () => {
               <h2 className="text-xl font-bold text-gray-800">Welcome!</h2>
               <p className="text-gray-600 mt-1">Table {tableNumber}</p>
               <p className="text-gray-500 text-sm mt-2">
-                Please enter your details to continue
+                Please enter your details to place orders
               </p>
             </div>
 
@@ -631,7 +816,15 @@ const TableMenu: React.FC = () => {
                 type="submit"
                 className="w-full py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold"
               >
-                Continue to Menu
+                Continue
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowRegisterModal(false)}
+                className="w-full py-2 text-gray-500 hover:text-gray-700"
+              >
+                Cancel
               </button>
             </form>
           </div>

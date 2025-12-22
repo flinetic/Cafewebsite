@@ -17,5 +17,6 @@ router.put('/location', configController.updateLocation);
 router.put('/radius', configController.updateRadius);
 router.put('/theme', configController.updateTheme);
 router.put('/hours', configController.updateOperatingHours);
+router.put('/admin-limit', configController.updateAdminLimit);
 
 module.exports = router;

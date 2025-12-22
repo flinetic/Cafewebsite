@@ -3,15 +3,22 @@ import type { ReactNode } from 'react';
 import type { Staff, AuthTokens } from '../types';
 import api from '../services/api';
 
+interface RegisterResponse {
+  staff: Staff;
+  tokens: AuthTokens | null;
+  isPending?: boolean;
+}
+
 interface AuthContextType {
   user: Staff | null;
   tokens: AuthTokens | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  register: (data: RegisterData) => Promise<RegisterResponse | undefined>;
   logout: () => void;
   updateUser: (user: Staff) => void;
+  refreshUser: () => Promise<void>;
 }
 
 interface RegisterData {
@@ -63,23 +70,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     const response = await api.post('/auth/login', { email, password });
     const { staff, tokens: newTokens } = response.data.data;
-    
+
     setUser(staff);
     setTokens(newTokens);
-    
+
     localStorage.setItem('user', JSON.stringify(staff));
     localStorage.setItem('tokens', JSON.stringify(newTokens));
   };
 
-  const register = async (data: RegisterData) => {
+  const register = async (data: RegisterData): Promise<RegisterResponse | undefined> => {
     const response = await api.post('/auth/register', data);
-    const { staff, tokens: newTokens } = response.data.data;
-    
-    setUser(staff);
-    setTokens(newTokens);
-    
-    localStorage.setItem('user', JSON.stringify(staff));
-    localStorage.setItem('tokens', JSON.stringify(newTokens));
+    const { staff, tokens: newTokens, isPending } = response.data.data;
+
+    // Only set user and tokens if they're provided (not pending)
+    if (newTokens && !isPending) {
+      setUser(staff);
+      setTokens(newTokens);
+
+      localStorage.setItem('user', JSON.stringify(staff));
+      localStorage.setItem('tokens', JSON.stringify(newTokens));
+    }
+
+    return { staff, tokens: newTokens, isPending };
   };
 
   const logout = () => {
@@ -94,6 +106,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  // Refresh user data from server (useful after email verification)
+  const refreshUser = async () => {
+    if (!tokens) return;
+
+    try {
+      const response = await api.get('/auth/me');
+      const { staff } = response.data.data;
+      setUser(staff);
+      localStorage.setItem('user', JSON.stringify(staff));
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -105,6 +131,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         register,
         logout,
         updateUser,
+        refreshUser,
       }}
     >
       {children}
