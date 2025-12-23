@@ -13,10 +13,9 @@ import {
   CheckCircle2,
   XCircle
 } from 'lucide-react';
-import { tableApi } from '../../services/api';
+import { tableApi, configApi } from '../../services/api';
 import toast from 'react-hot-toast';
 import type { AxiosError } from 'axios';
-import logo from '../../assets/logo.svg';
 
 interface Table {
   id: string;
@@ -41,9 +40,11 @@ const Tables: React.FC = () => {
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const [newTableNumber, setNewTableNumber] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [cafeConfig, setCafeConfig] = useState<{ logoUrl?: string; cafeName?: string }>({});
 
   useEffect(() => {
     fetchTables();
+    fetchCafeConfig();
   }, []);
 
   const fetchTables = async () => {
@@ -55,6 +56,15 @@ const Tables: React.FC = () => {
       toast.error(axiosError.response?.data?.message || 'Failed to fetch tables');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCafeConfig = async () => {
+    try {
+      const response = await configApi.getConfig();
+      setCafeConfig(response.data.data || {});
+    } catch (error) {
+      console.error('Failed to fetch cafe config:', error);
     }
   };
 
@@ -256,11 +266,17 @@ const Tables: React.FC = () => {
                     />
                     {/* Logo Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <img
-                        src={logo}
-                        alt="BookAVibe"
-                        className="w-8 h-8 rounded-full object-cover bg-white shadow-sm"
-                      />
+                      {cafeConfig.logoUrl && !cafeConfig.logoUrl.includes('/assets/') ? (
+                        <img
+                          src={cafeConfig.logoUrl}
+                          alt={cafeConfig.cafeName || 'Cafe'}
+                          className="w-8 h-8 rounded-full object-cover bg-white shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-amber-600 text-sm font-bold">
+                          {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
+                        </div>
+                      )}
                     </div>
                     <button
                       onClick={() => {
@@ -422,11 +438,17 @@ const Tables: React.FC = () => {
                 />
                 {/* Logo Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <img
-                    src={logo}
-                    alt="BookAVibe"
-                    className="w-14 h-14 rounded-full object-cover bg-white shadow-md"
-                  />
+                  {cafeConfig.logoUrl && !cafeConfig.logoUrl.includes('/assets/') ? (
+                    <img
+                      src={cafeConfig.logoUrl}
+                      alt={cafeConfig.cafeName || 'Cafe'}
+                      className="w-14 h-14 rounded-full object-cover bg-white shadow-md"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center text-amber-600 text-2xl font-bold">
+                      {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

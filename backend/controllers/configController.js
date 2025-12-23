@@ -133,3 +133,28 @@ exports.updateAdminLimit = asyncHandler(async (req, res) => {
         data: config
     });
 });
+
+// @desc    Update cafe logo
+// @route   PUT /api/config/logo
+// @access  Private/Admin
+exports.updateLogoUrl = asyncHandler(async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({
+            success: false,
+            message: 'Please upload an image file'
+        });
+    }
+
+    // Get the uploaded file URL from Cloudinary
+    const logoUrl = req.file.path;
+
+    const config = await configService.updateConfig({ logoUrl });
+
+    res.json({
+        success: true,
+        message: 'Cafe logo updated successfully',
+        data: {
+            logoUrl: config.logoUrl
+        }
+    });
+});

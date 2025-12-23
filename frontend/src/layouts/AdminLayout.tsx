@@ -15,7 +15,8 @@ import {
   User
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import logo from '../assets/logo.svg';
+import { configApi } from '../services/api';
+
 
 const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -23,6 +24,7 @@ const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const [cafeConfig, setCafeConfig] = useState<{ logoUrl?: string; cafeName?: string }>({});
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -33,6 +35,19 @@ const AdminLayout: React.FC = () => {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Fetch cafe config for logo
+  useEffect(() => {
+    const fetchCafeConfig = async () => {
+      try {
+        const response = await configApi.getConfig();
+        setCafeConfig(response.data.data || {});
+      } catch (error) {
+        console.error('Failed to fetch cafe config:', error);
+      }
+    };
+    fetchCafeConfig();
   }, []);
 
   const handleLogout = () => {
@@ -82,19 +97,31 @@ const AdminLayout: React.FC = () => {
         <div className="p-4 flex items-center justify-between border-b border-amber-600">
           {sidebarOpen ? (
             <div className="flex items-center gap-3">
-              <img
-                src={logo}
-                alt="BookAVibe"
-                className="w-10 h-10 rounded-full object-cover bg-white"
-              />
-              <h1 className="text-xl font-bold">BookAVibe</h1>
+              {cafeConfig.logoUrl && !cafeConfig.logoUrl.includes('/assets/') ? (
+                <img
+                  src={cafeConfig.logoUrl}
+                  alt={cafeConfig.cafeName || 'Cafe'}
+                  className="w-10 h-10 rounded-full object-cover bg-white"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-amber-600 text-lg font-bold">
+                  {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
+                </div>
+              )}
+              <h1 className="text-xl font-bold">{cafeConfig.cafeName || 'BookAVibe'}</h1>
             </div>
           ) : (
-            <img
-              src={logo}
-              alt="BookAVibe"
-              className="w-10 h-10 rounded-full object-cover bg-white mx-auto"
-            />
+            cafeConfig.logoUrl && !cafeConfig.logoUrl.includes('/assets/') ? (
+              <img
+                src={cafeConfig.logoUrl}
+                alt={cafeConfig.cafeName || 'Cafe'}
+                className="w-10 h-10 rounded-full object-cover bg-white mx-auto"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-amber-600 text-lg font-bold mx-auto">
+                {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
+              </div>
+            )
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}

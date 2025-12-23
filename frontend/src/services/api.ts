@@ -187,6 +187,17 @@ export const configApi = {
   // Update admin limit
   updateAdminLimit: (maxAdminLimit: number) =>
     api.put('/config/admin-limit', { maxAdminLimit }),
+
+  // Upload cafe logo
+  uploadLogo: (file: File) => {
+    const formData = new FormData();
+    formData.append('logo', file);
+    return api.put('/config/logo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };
 
 // ==================== Menu API ====================

@@ -49,11 +49,13 @@ const Settings: React.FC = () => {
     const { user, updateUser } = useAuth();
     const isAdmin = user?.role === 'admin';
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const logoInputRef = useRef<HTMLInputElement>(null);
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [fetchingLocation, setFetchingLocation] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [uploadingLogo, setUploadingLogo] = useState(false);
 
     // Form state
     const [cafeName, setCafeName] = useState('');
@@ -66,6 +68,7 @@ const Settings: React.FC = () => {
     const [contactPhone, setContactPhone] = useState('');
     const [contactEmail, setContactEmail] = useState('');
     const [maxAdminLimit, setMaxAdminLimit] = useState('1');
+    const [logoUrl, setLogoUrl] = useState('');
 
     // Pending users state
     const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
@@ -98,6 +101,7 @@ const Settings: React.FC = () => {
             setContactPhone(data.contactPhone || '');
             setContactEmail(data.contactEmail || '');
             setMaxAdminLimit(data.maxAdminLimit?.toString() || '1');
+            setLogoUrl(data.logoUrl || '');
         } catch (error) {
             toast.error('Failed to load settings');
         } finally {
@@ -230,6 +234,39 @@ const Settings: React.FC = () => {
             toast.error('Failed to reject user');
         } finally {
             setProcessingUser(null);
+        }
+    };
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast.error('Please upload an image file');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Image size must be less than 5MB');
+            return;
+        }
+
+        setUploadingLogo(true);
+        try {
+            const response = await configApi.uploadLogo(file);
+            const newLogoUrl = response.data.data.logoUrl;
+            setLogoUrl(newLogoUrl);
+            toast.success('Cafe logo updated!');
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to upload logo');
+        } finally {
+            setUploadingLogo(false);
+            // Reset file input
+            if (logoInputRef.current) {
+                logoInputRef.current.value = '';
+            }
         }
     };
 
@@ -430,6 +467,56 @@ const Settings: React.FC = () => {
                         <SettingsIcon size={20} className="text-amber-600" />
                         Cafe Profile
                     </h2>
+
+                    {/* Cafe Logo Section */}
+                    <div className="mb-6 p-4 bg-amber-50 rounded-lg border border-amber-100">
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                            Cafe Logo
+                        </label>
+                        <div className="flex items-center gap-6">
+                            <div className="relative group">
+                                {logoUrl && !logoUrl.includes('/assets/') ? (
+                                    <img
+                                        src={logoUrl}
+                                        alt="Cafe Logo"
+                                        className="w-24 h-24 rounded-xl object-cover border-4 border-white shadow-md"
+                                    />
+                                ) : (
+                                    <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-md">
+                                        {cafeName ? cafeName.charAt(0).toUpperCase() : '☕'}
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => logoInputRef.current?.click()}
+                                    disabled={uploadingLogo}
+                                    className="absolute bottom-0 right-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center hover:bg-amber-700 transition-colors shadow-lg disabled:opacity-50"
+                                >
+                                    {uploadingLogo ? (
+                                        <Loader2 size={16} className="animate-spin" />
+                                    ) : (
+                                        <Camera size={16} />
+                                    )}
+                                </button>
+                                <input
+                                    ref={logoInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleLogoUpload}
+                                    className="hidden"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-600 font-medium">Upload your cafe logo</p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Recommended: Square image, at least 500x500px
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    Max file size: 5MB (JPG, PNG, WebP)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">

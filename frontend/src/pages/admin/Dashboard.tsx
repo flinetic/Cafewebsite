@@ -16,10 +16,9 @@ import {
   AlertCircle,
   Send
 } from 'lucide-react';
-import { orderApi, offerApi, authApi } from '../../services/api';
+import { orderApi, offerApi, authApi, configApi } from '../../services/api';
 import toast from 'react-hot-toast';
 import type { AxiosError } from 'axios';
-import logo from '../../assets/logo.svg';
 
 interface Stats {
   totalOrders: number;
@@ -43,6 +42,7 @@ const Dashboard: React.FC = () => {
   const [activeOffers, setActiveOffers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [resending, setResending] = useState(false);
+  const [cafeConfig, setCafeConfig] = useState<{ logoUrl?: string; cafeName?: string }>({});
 
   useEffect(() => {
     fetchDashboardData();
@@ -78,13 +78,15 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsResponse, offersResponse] = await Promise.all([
+      const [statsResponse, offersResponse, configResponse] = await Promise.all([
         orderApi.getTodaysStats(),
-        offerApi.getActiveOffers()
+        offerApi.getActiveOffers(),
+        configApi.getConfig()
       ]);
 
       setStats(statsResponse.data.data);
       setActiveOffers(offersResponse.data.data?.length || 0);
+      setCafeConfig(configResponse.data.data || {});
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
       toast.error(axiosError.response?.data?.message || 'Failed to fetch dashboard data');
@@ -186,11 +188,17 @@ const Dashboard: React.FC = () => {
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-6 text-white">
         <div className="flex items-center gap-4">
-          <img
-            src={logo}
-            alt="BookAVibe"
-            className="w-16 h-16 rounded-full object-cover bg-white"
-          />
+          {cafeConfig.logoUrl && !cafeConfig.logoUrl.includes('/assets/') ? (
+            <img
+              src={cafeConfig.logoUrl}
+              alt={cafeConfig.cafeName || 'Cafe'}
+              className="w-16 h-16 rounded-full object-cover bg-white"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-amber-600 text-2xl font-bold">
+              {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
+            </div>
+          )}
           <div>
             <h1 className="text-2xl font-bold mb-1">
               Welcome back, {user?.firstName}! 👋

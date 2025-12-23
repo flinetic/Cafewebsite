@@ -35,6 +35,26 @@ const profileImageStorage = new CloudinaryStorage({
 });
 
 /**
+ * Cloudinary storage configuration for cafe logo images
+ */
+const cafeLogoStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "bookavibe/cafe-logo",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    transformation: [
+      { width: 500, height: 500, crop: "fill" },
+      { quality: "auto" },
+      { fetch_format: "auto" },
+    ],
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      return `cafe-logo-${uniqueSuffix}`;
+    },
+  },
+});
+
+/**
  * Cloudinary storage configuration for general images
  */
 const generalImageStorage = new CloudinaryStorage({
@@ -71,6 +91,18 @@ const imageFilter = (req, file, cb) => {
  */
 const uploadProfileImage = multer({
   storage: profileImageStorage,
+  limits: {
+    fileSize: MAX_FILE_SIZE,
+    files: 1,
+  },
+  fileFilter: imageFilter,
+});
+
+/**
+ * Multer configuration for cafe logo uploads
+ */
+const uploadCafeLogo = multer({
+  storage: cafeLogoStorage,
   limits: {
     fileSize: MAX_FILE_SIZE,
     files: 1,
@@ -153,6 +185,7 @@ const handleUploadError = (err, req, res, next) => {
 
 module.exports = {
   uploadProfileImage,
+  uploadCafeLogo,
   uploadImage,
   uploadLocal,
   handleUploadError,
