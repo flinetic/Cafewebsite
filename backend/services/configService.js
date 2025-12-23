@@ -85,7 +85,9 @@ class ConfigService {
             currency: config.currency,
             theme: config.theme,
             operatingHours: config.operatingHours,
-            socialLinks: config.socialLinks
+            socialLinks: config.socialLinks,
+            location: config.location,
+            allowedRadiusMeters: config.allowedRadiusMeters
         };
     }
 }
