@@ -95,7 +95,8 @@ const TableMenu: React.FC = () => {
     setCustomerInfo,
     clearCart,
     getTotalAmount,
-    getTotalItems
+    getTotalItems,
+    checkAndCleanExpiredSession
   } = useCart();
 
   const [menuItems, setMenuItems] = useState<GroupedMenu>({});
@@ -124,6 +125,16 @@ const TableMenu: React.FC = () => {
   }, [tableNumber]);
 
   useEffect(() => {
+    // Check for expired customer session when going to orders tab
+    if (tableValid && mainTab === 'orders') {
+      const wasExpired = checkAndCleanExpiredSession();
+      if (wasExpired) {
+        // Reset registration form fields
+        setRegName('');
+        setRegPhone('');
+      }
+    }
+    // Show registration modal if not registered and on orders tab
     if (tableValid && !isRegistered && mainTab === 'orders') {
       setShowRegisterModal(true);
     }

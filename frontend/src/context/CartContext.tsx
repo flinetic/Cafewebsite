@@ -28,6 +28,7 @@ interface CartContextType {
   setTableNumber: (tableNumber: number) => void;
   setCustomerInfo: (info: CustomerInfo) => void;
   clearSession: () => void;
+  checkAndCleanExpiredSession: () => boolean;
   getTotalAmount: () => number;
   getTotalItems: () => number;
 }
@@ -37,6 +38,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const CART_STORAGE_KEY = 'bookavibe_cart';
 const CUSTOMER_STORAGE_KEY = 'bookavibe_customer';
 const TABLE_STORAGE_KEY = 'bookavibe_table';
+const CUSTOMER_EXPIRY_KEY = 'bookavibe_customer_expiry';
+const CUSTOMER_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
 
 interface CartProviderProps {
   children: ReactNode;
@@ -47,21 +50,38 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [tableNumber, setTableNumberState] = useState<number | null>(null);
   const [customerInfo, setCustomerInfoState] = useState<CustomerInfo | null>(null);
 
+  // Check if customer data has expired
+  const checkCustomerExpiry = (): boolean => {
+    const expiryTime = localStorage.getItem(CUSTOMER_EXPIRY_KEY);
+    if (expiryTime && Date.now() > parseInt(expiryTime)) {
+      // Clear expired customer info
+      localStorage.removeItem(CUSTOMER_STORAGE_KEY);
+      localStorage.removeItem(CUSTOMER_EXPIRY_KEY);
+      console.log('Customer session expired - data cleared');
+      return true; // Data was expired
+    }
+    return false; // Data is still valid
+  };
+
   // Load from localStorage on mount
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      const savedCustomer = localStorage.getItem(CUSTOMER_STORAGE_KEY);
       const savedTable = localStorage.getItem(TABLE_STORAGE_KEY);
 
       if (savedCart) {
         setItems(JSON.parse(savedCart));
       }
-      if (savedCustomer) {
-        setCustomerInfoState(JSON.parse(savedCustomer));
-      }
       if (savedTable) {
         setTableNumberState(parseInt(savedTable));
+      }
+
+      // Check if customer data has expired before loading
+      if (!checkCustomerExpiry()) {
+        const savedCustomer = localStorage.getItem(CUSTOMER_STORAGE_KEY);
+        if (savedCustomer) {
+          setCustomerInfoState(JSON.parse(savedCustomer));
+        }
       }
     } catch (error) {
       console.error('Error loading cart from storage:', error);
@@ -79,14 +99,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const addItem = (item: Omit<CartItem, 'quantity' | 'specialInstructions'>) => {
     setItems(prevItems => {
       const existingIndex = prevItems.findIndex(i => i.menuItemId === item.menuItemId);
-      
+
       if (existingIndex >= 0) {
         // Increase quantity of existing item
         const newItems = [...prevItems];
         newItems[existingIndex].quantity += 1;
         return newItems;
       }
-      
+
       // Add new item
       return [...prevItems, { ...item, quantity: 1, specialInstructions: '' }];
     });
@@ -130,6 +150,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const setCustomerInfo = (info: CustomerInfo) => {
     setCustomerInfoState(info);
     localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify(info));
+    // Set expiry 30 minutes from now
+    localStorage.setItem(CUSTOMER_EXPIRY_KEY, String(Date.now() + CUSTOMER_EXPIRY_MS));
   };
 
   const clearSession = () => {
@@ -139,6 +161,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     localStorage.removeItem(CART_STORAGE_KEY);
     localStorage.removeItem(CUSTOMER_STORAGE_KEY);
     localStorage.removeItem(TABLE_STORAGE_KEY);
+    localStorage.removeItem(CUSTOMER_EXPIRY_KEY);
   };
 
   const getTotalAmount = () => {
@@ -147,6 +170,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const getTotalItems = () => {
     return items.reduce((sum, item) => sum + item.quantity, 0);
+  };
+
+  // Check and clean expired session - returns true if session was expired
+  const checkAndCleanExpiredSession = (): boolean => {
+    if (checkCustomerExpiry()) {
+      setCustomerInfoState(null);
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -164,6 +196,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         setTableNumber,
         setCustomerInfo,
         clearSession,
+        checkAndCleanExpiredSession,
         getTotalAmount,
         getTotalItems,
       }}

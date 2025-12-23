@@ -79,6 +79,17 @@ const LocationGuard: React.FC<LocationGuardProps> = ({ children }) => {
                     cafeLocation.lng
                 );
 
+                // Debug logging to verify distance calculations
+                console.log('Location check:', {
+                    userLat,
+                    userLng,
+                    cafeLat: cafeLocation.lat,
+                    cafeLng: cafeLocation.lng,
+                    calculatedDistance: dist,
+                    allowedRadius: cafeLocation.radius,
+                    isWithinRange: dist <= cafeLocation.radius
+                });
+
                 setDistance(dist);
 
                 if (dist <= cafeLocation.radius) {
@@ -98,7 +109,7 @@ const LocationGuard: React.FC<LocationGuardProps> = ({ children }) => {
             },
             {
                 enableHighAccuracy: true,
-                timeout: 10000,
+                timeout: 30000,
                 maximumAge: 0
             }
         );

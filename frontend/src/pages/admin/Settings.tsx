@@ -203,7 +203,7 @@ const Settings: React.FC = () => {
                 setFetchingLocation(false);
                 toast.error('Failed to get location: ' + error.message);
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
         );
     };
 
