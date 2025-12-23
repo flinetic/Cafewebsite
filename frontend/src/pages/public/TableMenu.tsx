@@ -414,7 +414,7 @@ const TableMenu: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white sticky top-0 z-40">
+      <div className="bg-gradient-to-r from-caramel to-caramel text-white sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
