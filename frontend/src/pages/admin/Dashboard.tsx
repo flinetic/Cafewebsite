@@ -100,32 +100,32 @@ const Dashboard: React.FC = () => {
       label: 'Manage Tables',
       desc: 'Add, edit, or remove tables',
       icon: Grid,
-      color: 'bg-blue-500',
-      hoverColor: 'hover:bg-blue-600',
+      color: 'bg-caramel',
+      hoverColor: 'hover:bg-caramel',
       path: '/admin/tables'
     },
     {
       label: 'View Orders',
       desc: 'Track and manage orders',
       icon: ShoppingCart,
-      color: 'bg-green-500',
-      hoverColor: 'hover:bg-green-600',
+      color: 'bg-olive',
+      hoverColor: 'hover:bg-olive',
       path: '/admin/orders'
     },
     {
       label: 'Menu Manager',
       desc: 'Add or update menu items',
       icon: UtensilsCrossed,
-      color: 'bg-amber-500',
-      hoverColor: 'hover:bg-amber-600',
+      color: 'bg-mocha',
+      hoverColor: 'hover:bg-caramel',
       path: '/admin/menu'
     },
     {
       label: 'Offers',
       desc: 'Create promotional offers',
       icon: Tag,
-      color: 'bg-purple-500',
-      hoverColor: 'hover:bg-purple-600',
+      color: 'bg-burnt-orange',
+      hoverColor: 'hover:bg-burnt-orange',
       path: '/admin/offers'
     },
   ];
@@ -141,7 +141,7 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -150,21 +150,21 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Email Verification Banner */}
       {user && !user.isEmailVerified && (
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
+        <div className="bg-mocha/20 border border-mocha rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <AlertCircle className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 bg-mocha/30 rounded-full flex items-center justify-center flex-shrink-0">
+              <AlertCircle className="w-5 h-5 text-caramel" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-amber-800">Email Verification Required</h3>
-              <p className="text-sm text-amber-700 mt-1">
+              <h3 className="font-semibold text-dark-roast">Email Verification Required</h3>
+              <p className="text-sm text-ash-brown mt-1">
                 Please verify your email address to access all features. Check your inbox at <strong>{user.email}</strong> for the verification link.
               </p>
               <div className="flex items-center gap-3 mt-3">
                 <button
                   onClick={handleResendVerification}
                   disabled={resending}
-                  className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 text-sm font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors disabled:opacity-50 text-sm font-medium"
                 >
                   {resending ? (
                     <>
@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
                     </>
                   )}
                 </button>
-                <span className="text-xs text-amber-600">Check spam folder if not received</span>
+                <span className="text-xs text-caramel">Check spam folder if not received</span>
               </div>
             </div>
           </div>
@@ -186,7 +186,7 @@ const Dashboard: React.FC = () => {
       )}
 
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-caramel to-caramel rounded-2xl p-6 text-white">
         <div className="flex items-center gap-4">
           {cafeConfig.logoUrl && !cafeConfig.logoUrl.includes('/assets/') ? (
             <img
@@ -195,7 +195,7 @@ const Dashboard: React.FC = () => {
               className="w-16 h-16 rounded-full object-cover bg-white"
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-amber-600 text-2xl font-bold">
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-primary-600 text-2xl font-bold">
               {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
             </div>
           )}
@@ -203,7 +203,7 @@ const Dashboard: React.FC = () => {
             <h1 className="text-2xl font-bold mb-1">
               Welcome back, {user?.firstName}! 👋
             </h1>
-            <p className="text-amber-100">
+            <p className="text-mocha">
               Here's your cafe overview for today
             </p>
           </div>
@@ -212,46 +212,46 @@ const Dashboard: React.FC = () => {
 
       {/* Today's Stats */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Today's Overview</h2>
+        <h2 className="text-lg font-semibold text-dark-roast mb-4">Today's Overview</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-milk-foam">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-5 h-5 text-orange-600" />
+              <div className="w-10 h-10 bg-burnt-orange/20 rounded-lg flex items-center justify-center">
+                <Clock className="w-5 h-5 text-burnt-orange" />
               </div>
-              <span className="text-sm text-gray-600">Pending</span>
+              <span className="text-sm text-ash-brown">Pending</span>
             </div>
-            <p className="text-2xl font-bold text-gray-800">{stats?.pendingOrders || 0}</p>
+            <p className="text-2xl font-bold text-dark-roast">{stats?.pendingOrders || 0}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-milk-foam">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <ChefHat className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-caramel/20 rounded-lg flex items-center justify-center">
+                <ChefHat className="w-5 h-5 text-caramel" />
               </div>
-              <span className="text-sm text-gray-600">Preparing</span>
+              <span className="text-sm text-ash-brown">Preparing</span>
             </div>
-            <p className="text-2xl font-bold text-gray-800">{stats?.preparingOrders || 0}</p>
+            <p className="text-2xl font-bold text-dark-roast">{stats?.preparingOrders || 0}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-milk-foam">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="w-10 h-10 bg-olive/20 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-olive" />
               </div>
-              <span className="text-sm text-gray-600">Completed</span>
+              <span className="text-sm text-ash-brown">Completed</span>
             </div>
-            <p className="text-2xl font-bold text-gray-800">{stats?.completedOrders || 0}</p>
+            <p className="text-2xl font-bold text-dark-roast">{stats?.completedOrders || 0}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-milk-foam">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                <IndianRupee className="w-5 h-5 text-amber-600" />
+              <div className="w-10 h-10 bg-mocha/30 rounded-lg flex items-center justify-center">
+                <IndianRupee className="w-5 h-5 text-primary-600" />
               </div>
-              <span className="text-sm text-gray-600">Earnings</span>
+              <span className="text-sm text-ash-brown">Earnings</span>
             </div>
-            <p className="text-2xl font-bold text-gray-800">{formatCurrency(stats?.totalEarnings || 0)}</p>
+            <p className="text-2xl font-bold text-dark-roast">{formatCurrency(stats?.totalEarnings || 0)}</p>
           </div>
         </div>
       </div>
@@ -259,44 +259,44 @@ const Dashboard: React.FC = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Orders Card */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-milk-foam">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-800">Total Orders Today</h3>
-            <TrendingUp className="w-5 h-5 text-green-500" />
+            <h3 className="font-semibold text-dark-roast">Total Orders Today</h3>
+            <TrendingUp className="w-5 h-5 text-olive" />
           </div>
-          <p className="text-3xl font-bold text-gray-800 mb-2">{stats?.totalOrders || 0}</p>
+          <p className="text-3xl font-bold text-dark-roast mb-2">{stats?.totalOrders || 0}</p>
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-green-600 bg-green-50 px-2 py-0.5 rounded">
+            <span className="text-olive bg-olive/10 px-2 py-0.5 rounded">
               {stats?.paidOrders || 0} paid
             </span>
-            <span className="text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
+            <span className="text-burnt-orange bg-burnt-orange/10 px-2 py-0.5 rounded">
               {(stats?.pendingOrders || 0) + (stats?.preparingOrders || 0) + (stats?.completedOrders || 0)} active
             </span>
           </div>
         </div>
 
         {/* Pending Revenue Card */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-milk-foam">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-800">Pending Revenue</h3>
-            <AlertCircle className="w-5 h-5 text-amber-500" />
+            <h3 className="font-semibold text-dark-roast">Pending Revenue</h3>
+            <AlertCircle className="w-5 h-5 text-caramel" />
           </div>
-          <p className="text-3xl font-bold text-amber-600 mb-2">{formatCurrency(stats?.pendingAmount || 0)}</p>
-          <p className="text-sm text-gray-500">
+          <p className="text-3xl font-bold text-caramel mb-2">{formatCurrency(stats?.pendingAmount || 0)}</p>
+          <p className="text-sm text-ash-brown">
             {(stats?.pendingOrders || 0) + (stats?.preparingOrders || 0) + (stats?.completedOrders || 0)} orders awaiting payment
           </p>
         </div>
 
         {/* Active Offers Card */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-milk-foam">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-800">Active Offers</h3>
-            <Tag className="w-5 h-5 text-purple-500" />
+            <h3 className="font-semibold text-dark-roast">Active Offers</h3>
+            <Tag className="w-5 h-5 text-burnt-orange" />
           </div>
-          <p className="text-3xl font-bold text-gray-800 mb-2">{activeOffers}</p>
+          <p className="text-3xl font-bold text-dark-roast mb-2">{activeOffers}</p>
           <button
             onClick={() => navigate('/admin/offers')}
-            className="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1"
+            className="text-sm text-primary-600 hover:text-mocha flex items-center gap-1"
           >
             Manage Offers <ArrowRight size={14} />
           </button>
@@ -305,36 +305,36 @@ const Dashboard: React.FC = () => {
 
       {/* Quick Links */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-semibold text-dark-roast mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {quickLinks.map((link, index) => (
             <button
               key={index}
               onClick={() => navigate(link.path)}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-amber-200 transition-all text-left group"
+              className="bg-white rounded-xl p-5 shadow-sm border border-milk-foam hover:shadow-md hover:border-mocha transition-all text-left group"
             >
               <div className={`w-12 h-12 ${link.color} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
                 <link.icon className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-800 mb-1">{link.label}</h3>
-              <p className="text-xs text-gray-500">{link.desc}</p>
+              <h3 className="font-semibold text-dark-roast mb-1">{link.label}</h3>
+              <p className="text-xs text-ash-brown">{link.desc}</p>
             </button>
           ))}
         </div>
       </div>
 
       {/* Live Activity Indicator */}
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+      <div className="bg-gradient-to-r from-latte to-milk-foam rounded-xl p-4 border border-milk-foam">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-gray-600">
+            <div className="w-3 h-3 bg-olive rounded-full animate-pulse"></div>
+            <span className="text-sm text-ash-brown">
               System is active • Last updated: {new Date().toLocaleTimeString()}
             </span>
           </div>
           <button
             onClick={fetchDashboardData}
-            className="text-sm text-amber-600 hover:text-amber-700 font-medium"
+            className="text-sm text-primary-600 hover:text-mocha font-medium"
           >
             Refresh
           </button>

@@ -270,10 +270,10 @@ const Orders: React.FC = () => {
     return (
       <div
         key={order.id}
-        className="bg-white rounded-xl shadow-sm border border-amber-400 overflow-hidden relative"
+        className="bg-white rounded-xl shadow-sm border border-mocha overflow-hidden relative"
       >
         {/* Table Number Badge - Large corner display */}
-        <div className="absolute top-0 right-0 w-14 h-14 bg-amber-600 flex items-center justify-center rounded-bl-xl">
+        <div className="absolute top-0 right-0 w-14 h-14 bg-caramel flex items-center justify-center rounded-bl-xl">
           <span className="text-white text-xl font-bold">{order.tableNumber}</span>
         </div>
 
@@ -281,7 +281,7 @@ const Orders: React.FC = () => {
         <div className="p-3 pr-16">
           {/* Token Number - Upper Left Corner */}
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-2xl font-bold text-amber-600">
+            <span className="text-2xl font-bold text-primary-600">
               #{String(order.token || order.orderNumber.slice(-4)).padStart(3, '0')}
             </span>
             {getStatusBadge(order.status)}
@@ -321,7 +321,7 @@ const Orders: React.FC = () => {
             </div>
             <div className="flex justify-between items-center pt-2 mt-2 border-t border-gray-200">
               <span className="font-bold text-gray-800">Total</span>
-              <span className="font-bold text-amber-600 text-lg">₹{order.totalAmount}</span>
+              <span className="font-bold text-primary-600 text-lg">₹{order.totalAmount}</span>
             </div>
           </div>
 
@@ -370,7 +370,7 @@ const Orders: React.FC = () => {
             {order.status === 'completed' && !isKitchen && (
               <button
                 onClick={() => handleMarkPaid(order.id)}
-                className="flex-1 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium flex items-center justify-center gap-2 text-sm"
+                className="flex-1 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors font-medium flex items-center justify-center gap-2 text-sm"
               >
                 <IndianRupee size={16} />
                 Mark as Paid
@@ -398,7 +398,7 @@ const Orders: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -407,21 +407,21 @@ const Orders: React.FC = () => {
     <div className="space-y-6">
       {/* Email Verification Banner */}
       {!isEmailVerified && (
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
+        <div className="bg-mocha/20 border border-mocha rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <Mail className="w-5 h-5 text-amber-600" />
+            <div className="w-10 h-10 bg-mocha/30 rounded-full flex items-center justify-center flex-shrink-0">
+              <Mail className="w-5 h-5 text-primary-600" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-amber-800">Email Verification Required</h3>
-              <p className="text-sm text-amber-700 mt-1">
+              <h3 className="font-semibold text-dark-roast">Email Verification Required</h3>
+              <p className="text-sm text-primary-700 mt-1">
                 Please verify your email to start managing orders. Check your inbox at <strong>{user?.email}</strong> for the verification link.
               </p>
               <div className="flex items-center gap-3 mt-3">
                 <button
                   onClick={handleResendVerification}
                   disabled={resendingEmail}
-                  className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 text-sm font-medium"
+                  className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors disabled:opacity-50 text-sm font-medium"
                 >
                   {resendingEmail ? (
                     <>
@@ -435,7 +435,7 @@ const Orders: React.FC = () => {
                     </>
                   )}
                 </button>
-                <span className="text-xs text-amber-600">Check spam folder if not received</span>
+                <span className="text-xs text-primary-600">Check spam folder if not received</span>
               </div>
             </div>
           </div>
@@ -454,7 +454,7 @@ const Orders: React.FC = () => {
         </div>
         <button
           onClick={() => fetchAllData()}
-          className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors"
         >
           <RefreshCcw size={20} className={isRefreshing ? 'animate-spin' : ''} />
           Refresh
@@ -499,12 +499,12 @@ const Orders: React.FC = () => {
         {!isKitchen && (
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-amber-600" />
+              <div className="p-2 bg-mocha/30 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-primary-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Today's Earnings</p>
-                <p className="text-2xl font-bold text-amber-600">₹{stats?.totalEarnings || 0}</p>
+                <p className="text-2xl font-bold text-primary-600">₹{stats?.totalEarnings || 0}</p>
               </div>
             </div>
           </div>
@@ -517,7 +517,7 @@ const Orders: React.FC = () => {
           <button
             onClick={() => setActiveTab('pending')}
             className={`flex-1 py-4 px-6 font-medium transition-colors flex items-center justify-center gap-2 ${activeTab === 'pending'
-              ? 'text-amber-600 border-b-2 border-amber-600 bg-amber-50'
+              ? 'text-primary-600 border-b-2 border-mocha bg-mocha/20'
               : 'text-gray-600 hover:bg-gray-50'
               }`}
           >
@@ -532,7 +532,7 @@ const Orders: React.FC = () => {
           <button
             onClick={() => setActiveTab('completed')}
             className={`flex-1 py-4 px-6 font-medium transition-colors flex items-center justify-center gap-2 ${activeTab === 'completed'
-              ? 'text-amber-600 border-b-2 border-amber-600 bg-amber-50'
+              ? 'text-primary-600 border-b-2 border-mocha bg-mocha/20'
               : 'text-gray-600 hover:bg-gray-50'
               }`}
           >
@@ -549,7 +549,7 @@ const Orders: React.FC = () => {
             <button
               onClick={() => setActiveTab('history')}
               className={`flex-1 py-4 px-6 font-medium transition-colors flex items-center justify-center gap-2 ${activeTab === 'history'
-                ? 'text-amber-600 border-b-2 border-amber-600 bg-amber-50'
+                ? 'text-primary-600 border-b-2 border-mocha bg-mocha/20'
                 : 'text-gray-600 hover:bg-gray-50'
                 }`}
             >
@@ -569,12 +569,12 @@ const Orders: React.FC = () => {
                 value={historyDate}
                 onChange={(e) => setHistoryDate(e.target.value)}
                 max={new Date().toISOString().split('T')[0]}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
               />
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-600">Total for {formatDate(historyDate)}</p>
-              <p className="text-xl font-bold text-amber-600">₹{historyTotal}</p>
+              <p className="text-xl font-bold text-primary-600">₹{historyTotal}</p>
             </div>
           </div>
         )}

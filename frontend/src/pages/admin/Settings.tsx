@@ -32,7 +32,7 @@ interface PendingUser {
 // Generate initials-based avatar color
 const getAvatarColor = (name: string) => {
     const colors = [
-        'bg-amber-500',
+        'bg-caramel',
         'bg-purple-500',
         'bg-blue-500',
         'bg-green-500',
@@ -317,7 +317,7 @@ const Settings: React.FC = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
             </div>
         );
     }
@@ -330,17 +330,17 @@ const Settings: React.FC = () => {
                     <img
                         src={user.profileImage}
                         alt={`${user.firstName} ${user.lastName}`}
-                        className="w-24 h-24 rounded-full object-cover border-4 border-amber-100"
+                        className="w-24 h-24 rounded-full object-cover border-4 border-mocha/30"
                     />
                 ) : (
-                    <div className={`w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border-4 border-amber-100 ${getAvatarColor(user?.firstName || 'U')}`}>
+                    <div className={`w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold border-4 border-mocha/30 ${getAvatarColor(user?.firstName || 'U')}`}>
                         {getInitials(user?.firstName, user?.lastName)}
                     </div>
                 )}
                 <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingImage}
-                    className="absolute bottom-0 right-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center hover:bg-amber-700 transition-colors shadow-lg disabled:opacity-50"
+                    className="absolute bottom-0 right-0 w-8 h-8 bg-caramel text-white rounded-full flex items-center justify-center hover:bg-mocha transition-colors shadow-lg disabled:opacity-50"
                 >
                     {uploadingImage ? (
                         <Loader2 size={16} className="animate-spin" />
@@ -359,7 +359,7 @@ const Settings: React.FC = () => {
             <div>
                 <h3 className="text-xl font-bold text-gray-800">{user?.firstName} {user?.lastName}</h3>
                 <p className="text-gray-500">{user?.email}</p>
-                <span className={`inline-flex items-center gap-1 px-3 py-1 mt-2 rounded-full text-sm font-medium ${isAdmin ? 'bg-amber-100 text-amber-700' : 'bg-purple-100 text-purple-700'
+                <span className={`inline-flex items-center gap-1 px-3 py-1 mt-2 rounded-full text-sm font-medium ${isAdmin ? 'bg-mocha/30 text-primary-700' : 'bg-purple-100 text-purple-700'
                     }`}>
                     {isAdmin ? <Shield size={14} /> : <ChefHat size={14} />}
                     {isAdmin ? 'Administrator' : 'Kitchen Staff'}
@@ -374,8 +374,8 @@ const Settings: React.FC = () => {
             <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                        <SettingsIcon className="w-6 h-6 text-amber-600" />
+                    <div className="w-12 h-12 bg-mocha/30 rounded-xl flex items-center justify-center">
+                        <SettingsIcon className="w-6 h-6 text-primary-600" />
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
@@ -386,7 +386,7 @@ const Settings: React.FC = () => {
                 {/* Profile Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <User size={20} className="text-amber-600" />
+                        <User size={20} className="text-primary-600" />
                         Your Profile
                     </h2>
 
@@ -406,8 +406,8 @@ const Settings: React.FC = () => {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <SettingsIcon className="w-6 h-6 text-amber-600" />
+                <div className="w-12 h-12 bg-mocha/30 rounded-xl flex items-center justify-center">
+                    <SettingsIcon className="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
@@ -429,7 +429,7 @@ const Settings: React.FC = () => {
                 <button
                     onClick={() => setActiveTab('profile')}
                     className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${activeTab === 'profile'
-                        ? 'border-amber-600 text-amber-600'
+                        ? 'border-mocha text-primary-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
                 >
@@ -438,7 +438,7 @@ const Settings: React.FC = () => {
                 <button
                     onClick={() => setActiveTab('cafe')}
                     className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${activeTab === 'cafe'
-                        ? 'border-amber-600 text-amber-600'
+                        ? 'border-mocha text-primary-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
                 >
@@ -447,7 +447,7 @@ const Settings: React.FC = () => {
                 <button
                     onClick={() => setActiveTab('users')}
                     className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'users'
-                        ? 'border-amber-600 text-amber-600'
+                        ? 'border-mocha text-primary-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
                 >
@@ -464,12 +464,12 @@ const Settings: React.FC = () => {
             {activeTab === 'profile' && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <SettingsIcon size={20} className="text-amber-600" />
+                        <SettingsIcon size={20} className="text-primary-600" />
                         Cafe Profile
                     </h2>
 
                     {/* Cafe Logo Section */}
-                    <div className="mb-6 p-4 bg-amber-50 rounded-lg border border-amber-100">
+                    <div className="mb-6 p-4 bg-mocha/20 rounded-lg border border-mocha/30">
                         <label className="block text-sm font-medium text-gray-700 mb-3">
                             Cafe Logo
                         </label>
@@ -482,14 +482,14 @@ const Settings: React.FC = () => {
                                         className="w-24 h-24 rounded-xl object-cover border-4 border-white shadow-md"
                                     />
                                 ) : (
-                                    <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-md">
+                                    <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-caramel to-mocha flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-md">
                                         {cafeName ? cafeName.charAt(0).toUpperCase() : '☕'}
                                     </div>
                                 )}
                                 <button
                                     onClick={() => logoInputRef.current?.click()}
                                     disabled={uploadingLogo}
-                                    className="absolute bottom-0 right-0 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center hover:bg-amber-700 transition-colors shadow-lg disabled:opacity-50"
+                                    className="absolute bottom-0 right-0 w-8 h-8 bg-caramel text-white rounded-full flex items-center justify-center hover:bg-mocha transition-colors shadow-lg disabled:opacity-50"
                                 >
                                     {uploadingLogo ? (
                                         <Loader2 size={16} className="animate-spin" />
@@ -526,7 +526,7 @@ const Settings: React.FC = () => {
                                 type="text"
                                 value={cafeName}
                                 onChange={(e) => setCafeName(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
                                 placeholder="BookAVibe Cafe"
                             />
                         </div>
@@ -538,7 +538,7 @@ const Settings: React.FC = () => {
                                 type="text"
                                 value={tagline}
                                 onChange={(e) => setTagline(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
                                 placeholder="Where Every Sip Tells a Story"
                             />
                         </div>
@@ -550,7 +550,7 @@ const Settings: React.FC = () => {
                                 type="tel"
                                 value={contactPhone}
                                 onChange={(e) => setContactPhone(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
                                 placeholder="+91 9876543210"
                             />
                         </div>
@@ -562,7 +562,7 @@ const Settings: React.FC = () => {
                                 type="email"
                                 value={contactEmail}
                                 onChange={(e) => setContactEmail(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
                                 placeholder="contact@bookavibe.com"
                             />
                         </div>
@@ -574,7 +574,7 @@ const Settings: React.FC = () => {
                                 type="url"
                                 value={menuBaseUrl}
                                 onChange={(e) => setMenuBaseUrl(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent font-mono text-sm"
+                                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent font-mono text-sm"
                                 placeholder="http://192.168.0.107:5173"
                             />
                             <p className="text-xs text-gray-500 mt-1">
@@ -585,7 +585,7 @@ const Settings: React.FC = () => {
                     <button
                         onClick={handleSaveProfile}
                         disabled={saving}
-                        className="mt-4 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="mt-4 px-6 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors flex items-center gap-2 disabled:opacity-50"
                     >
                         {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                         Save Profile
@@ -598,11 +598,11 @@ const Settings: React.FC = () => {
                     {/* Location Settings */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                            <MapPin size={20} className="text-amber-600" />
+                            <MapPin size={20} className="text-primary-600" />
                             Location Settings
                         </h2>
-                        <p className="text-sm text-gray-600 mb-4 bg-amber-50 p-3 rounded-lg border border-amber-100">
-                            <AlertCircle size={16} className="inline mr-2 text-amber-600" />
+                        <p className="text-sm text-gray-600 mb-4 bg-mocha/20 p-3 rounded-lg border border-mocha/30">
+                            <AlertCircle size={16} className="inline mr-2 text-primary-600" />
                             Set your cafe's coordinates to verify customers are within range when scanning QR codes.
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -615,7 +615,7 @@ const Settings: React.FC = () => {
                                     step="any"
                                     value={latitude}
                                     onChange={(e) => setLatitude(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
                                     placeholder="28.6139"
                                 />
                             </div>
@@ -628,7 +628,7 @@ const Settings: React.FC = () => {
                                     step="any"
                                     value={longitude}
                                     onChange={(e) => setLongitude(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
                                     placeholder="77.2090"
                                 />
                             </div>
@@ -640,7 +640,7 @@ const Settings: React.FC = () => {
                                     type="text"
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
                                     placeholder="123 Main Street, City"
                                 />
                             </div>
@@ -661,7 +661,7 @@ const Settings: React.FC = () => {
                             <button
                                 onClick={handleSaveLocation}
                                 disabled={saving}
-                                className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                className="px-6 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors flex items-center gap-2 disabled:opacity-50"
                             >
                                 {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                                 Save Location
@@ -672,7 +672,7 @@ const Settings: React.FC = () => {
                     {/* Radius Settings */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                            <Radius size={20} className="text-amber-600" />
+                            <Radius size={20} className="text-primary-600" />
                             Access Radius
                         </h2>
                         <p className="text-sm text-gray-600 mb-4">
@@ -686,7 +686,7 @@ const Settings: React.FC = () => {
                                     max="500"
                                     value={radius}
                                     onChange={(e) => setRadius(e.target.value)}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-caramel"
                                 />
                                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                                     <span>10m</span>
@@ -701,7 +701,7 @@ const Settings: React.FC = () => {
                                     max="5000"
                                     value={radius}
                                     onChange={(e) => setRadius(e.target.value)}
-                                    className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-center focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-center focus:ring-2 focus:ring-caramel focus:border-transparent"
                                 />
                                 <span className="text-gray-600 font-medium">meters</span>
                             </div>
@@ -709,7 +709,7 @@ const Settings: React.FC = () => {
                         <button
                             onClick={handleSaveRadius}
                             disabled={saving}
-                            className="mt-4 px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                            className="mt-4 px-6 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors flex items-center gap-2 disabled:opacity-50"
                         >
                             {saving ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
                             Update Radius
@@ -723,7 +723,7 @@ const Settings: React.FC = () => {
                     {/* Admin Limit Settings */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                            <Shield size={20} className="text-amber-600" />
+                            <Shield size={20} className="text-primary-600" />
                             Admin Settings
                         </h2>
                         <div className="flex items-center gap-4">
@@ -738,12 +738,12 @@ const Settings: React.FC = () => {
                                         max="10"
                                         value={maxAdminLimit}
                                         onChange={(e) => setMaxAdminLimit(e.target.value)}
-                                        className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-center focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                        className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-center focus:ring-2 focus:ring-caramel focus:border-transparent"
                                     />
                                     <button
                                         onClick={handleSaveAdminLimit}
                                         disabled={saving}
-                                        className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                        className="px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors flex items-center gap-2 disabled:opacity-50"
                                     >
                                         {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                                         Save
@@ -760,13 +760,13 @@ const Settings: React.FC = () => {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                                <Users size={20} className="text-amber-600" />
+                                <Users size={20} className="text-primary-600" />
                                 Pending Registrations
                             </h2>
                             <button
                                 onClick={fetchPendingUsers}
                                 disabled={loadingPending}
-                                className="text-sm text-amber-600 hover:text-amber-700 flex items-center gap-1"
+                                className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
                             >
                                 {loadingPending ? <Loader2 size={14} className="animate-spin" /> : null}
                                 Refresh
@@ -775,7 +775,7 @@ const Settings: React.FC = () => {
 
                         {loadingPending ? (
                             <div className="flex items-center justify-center py-8">
-                                <Loader2 className="w-6 h-6 animate-spin text-amber-600" />
+                                <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
                             </div>
                         ) : pendingUsers.length === 0 ? (
                             <div className="text-center py-8 text-gray-500">

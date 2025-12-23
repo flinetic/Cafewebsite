@@ -58,15 +58,15 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-caramel via-primary-700 to-mocha flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-3xl shadow-2xl mb-6">
-            <Coffee className="w-12 h-12 text-purple-600" />
+            <Coffee className="w-12 h-12 text-primary-600" />
           </div>
           <h1 className="text-4xl font-bold text-white tracking-tight">BookAVibe</h1>
-          <p className="text-purple-200 mt-2 text-lg">Cafe Management System</p>
+          <p className="text-mocha mt-2 text-lg">Cafe Management System</p>
         </div>
 
         {/* Login Card */}
@@ -97,7 +97,7 @@ const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base"
+                  className="w-full pl-12 pr-4 py-4 border border-milk-foam rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base"
                 />
               </div>
             </div>
@@ -114,7 +114,7 @@ const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full pl-12 pr-14 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base"
+                  className="w-full pl-12 pr-14 py-4 border border-milk-foam rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base"
                 />
                 <button
                   type="button"
@@ -130,7 +130,7 @@ const LoginPage: React.FC = () => {
             <div className="flex justify-end">
               <Link
                 to="/forgot-password"
-                className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                className="text-sm text-primary-600 hover:text-mocha font-medium"
               >
                 Forgot password?
               </Link>
@@ -140,7 +140,7 @@ const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-caramel to-mocha text-white py-4 rounded-xl font-semibold text-lg hover:from-caramel hover:to-primary-400 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {isLoading ? (
                 <>
@@ -156,7 +156,7 @@ const LoginPage: React.FC = () => {
           {/* Sign Up Link */}
           <p className="text-center mt-8 text-gray-600 text-lg">
             Don't have an account?{' '}
-            <Link to="/register" className="text-purple-600 hover:text-purple-700 font-semibold">
+            <Link to="/register" className="text-primary-600 hover:text-mocha font-semibold">
               Sign Up
             </Link>
           </p>
@@ -165,14 +165,14 @@ const LoginPage: React.FC = () => {
         {/* Demo Credentials */}
         <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-white">
           <p className="font-semibold mb-2">🚀 Getting Started</p>
-          <p className="text-sm text-purple-200">
+          <p className="text-sm text-mocha">
             Register as the first user to automatically become Admin, or run{' '}
             <code className="bg-white/20 px-2 py-1 rounded text-xs">npm run seed</code> in the backend to create demo users.
           </p>
         </div>
 
         {/* Footer */}
-        <p className="text-center mt-8 text-purple-200 text-sm">
+        <p className="text-center mt-8 text-mocha text-sm">
           © 2024 BookAVibe. All rights reserved.
         </p>
       </div>

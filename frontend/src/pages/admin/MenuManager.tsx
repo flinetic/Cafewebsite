@@ -279,7 +279,7 @@ const MenuManager: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -294,7 +294,7 @@ const MenuManager: React.FC = () => {
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors shadow-sm"
         >
           <Plus size={20} />
           Add Item
@@ -321,7 +321,7 @@ const MenuManager: React.FC = () => {
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <p className="text-sm text-gray-600 mb-1">Categories</p>
-          <p className="text-2xl font-bold text-amber-600">
+          <p className="text-2xl font-bold text-primary-600">
             {new Set(items.map(i => i.category)).size}
           </p>
         </div>
@@ -336,7 +336,7 @@ const MenuManager: React.FC = () => {
             placeholder="Search menu items..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+            className="w-full pl-10 pr-4 py-2 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
           />
         </div>
 
@@ -346,8 +346,8 @@ const MenuManager: React.FC = () => {
             <button
               onClick={() => setFilterCategory('all')}
               className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${filterCategory === 'all'
-                ? 'bg-amber-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-amber-50 border border-gray-200'
+                ? 'bg-caramel text-white'
+                : 'bg-latte text-dark-roast hover:bg-mocha/20 border border-milk-foam'
                 }`}
             >
               🍴 All Menu
@@ -357,8 +357,8 @@ const MenuManager: React.FC = () => {
                 key={cat.value}
                 onClick={() => setFilterCategory(cat.value)}
                 className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${filterCategory === cat.value
-                  ? 'bg-amber-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-amber-50 border border-gray-200'
+                  ? 'bg-caramel text-white'
+                  : 'bg-latte text-dark-roast hover:bg-mocha/20 border border-milk-foam'
                   }`}
               >
                 {cat.icon} {cat.label}
@@ -383,7 +383,7 @@ const MenuManager: React.FC = () => {
           {!searchTerm && filterCategory === 'all' && (
             <button
               onClick={openCreateModal}
-              className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+              className="px-6 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors"
             >
               Create Menu Item
             </button>
@@ -393,7 +393,7 @@ const MenuManager: React.FC = () => {
         <div className="space-y-6">
           {Object.entries(groupedItems).map(([category, categoryItems]) => (
             <div key={category} className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-100 to-orange-100 px-6 py-4">
+              <div className="bg-gradient-to-r from-mocha/40 to-caramel/30 px-6 py-4">
                 <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                   <span>{getCategoryIcon(category)}</span>
                   {getCategoryLabel(category)}
@@ -410,7 +410,7 @@ const MenuManager: React.FC = () => {
                       }`}
                   >
                     {/* Image */}
-                    <div className="w-16 h-16 rounded-lg bg-amber-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <div className="w-16 h-16 rounded-lg bg-mocha/30 flex items-center justify-center overflow-hidden flex-shrink-0">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
@@ -453,7 +453,7 @@ const MenuManager: React.FC = () => {
 
                     {/* Price */}
                     <div className="text-right">
-                      <p className="text-xl font-bold text-amber-600">₹{item.price}</p>
+                      <p className="text-xl font-bold text-primary-600">₹{item.price}</p>
                     </div>
 
                     {/* Actions */}
@@ -522,7 +522,7 @@ const MenuManager: React.FC = () => {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g., Margherita Pizza"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                   />
                 </div>
                 <div>
@@ -532,7 +532,7 @@ const MenuManager: React.FC = () => {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none bg-white"
+                    className="w-full px-4 py-3 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none bg-white"
                   >
                     {CATEGORIES.map(cat => (
                       <option key={cat.value} value={cat.value}>
@@ -553,7 +553,7 @@ const MenuManager: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Describe the item..."
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none resize-none"
+                  className="w-full px-4 py-3 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none resize-none"
                 />
               </div>
 
@@ -570,7 +570,7 @@ const MenuManager: React.FC = () => {
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
                     placeholder="0.00"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                   />
                 </div>
                 <div>
@@ -582,7 +582,7 @@ const MenuManager: React.FC = () => {
                     min="1"
                     value={formData.preparationTime}
                     onChange={(e) => setFormData({ ...formData, preparationTime: parseInt(e.target.value) || 15 })}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                   />
                 </div>
               </div>
@@ -652,7 +652,7 @@ const MenuManager: React.FC = () => {
                       type="checkbox"
                       checked={formData.isVegetarian}
                       onChange={(e) => setFormData({ ...formData, isVegetarian: e.target.checked })}
-                      className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-caramel"
                     />
                     <span className="flex items-center gap-1 text-sm">
                       <Leaf size={16} className="text-green-600" /> Vegetarian
@@ -663,7 +663,7 @@ const MenuManager: React.FC = () => {
                       type="checkbox"
                       checked={formData.isVegan}
                       onChange={(e) => setFormData({ ...formData, isVegan: e.target.checked })}
-                      className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-caramel"
                     />
                     <span className="text-sm">🌱 Vegan</span>
                   </label>
@@ -672,7 +672,7 @@ const MenuManager: React.FC = () => {
                       type="checkbox"
                       checked={formData.isSpicy}
                       onChange={(e) => setFormData({ ...formData, isSpicy: e.target.checked })}
-                      className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-caramel"
                     />
                     <span className="flex items-center gap-1 text-sm">
                       <Flame size={16} className="text-red-600" /> Spicy
@@ -683,7 +683,7 @@ const MenuManager: React.FC = () => {
                       type="checkbox"
                       checked={formData.isAvailable}
                       onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
-                      className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-caramel"
                     />
                     <span className="flex items-center gap-1 text-sm">
                       <Eye size={16} className="text-gray-600" /> Available
@@ -708,7 +708,7 @@ const MenuManager: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSaving ? (
                     <>

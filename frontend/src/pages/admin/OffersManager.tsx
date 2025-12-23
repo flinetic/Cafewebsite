@@ -198,7 +198,7 @@ const OffersManager: React.FC = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
             </div>
         );
     }
@@ -213,7 +213,7 @@ const OffersManager: React.FC = () => {
                 </div>
                 <button
                     onClick={openCreateModal}
-                    className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors shadow-sm"
                 >
                     <Plus size={20} />
                     Add Offer
@@ -248,7 +248,7 @@ const OffersManager: React.FC = () => {
                     <p className="text-gray-600 mb-6">Create your first promotional offer to attract customers</p>
                     <button
                         onClick={openCreateModal}
-                        className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                        className="px-6 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors"
                     >
                         Create Offer
                     </button>
@@ -262,7 +262,7 @@ const OffersManager: React.FC = () => {
                                 }`}
                         >
                             {/* Header */}
-                            <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-white">
+                            <div className="bg-caramel p-4 text-white">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-2xl font-bold">{getDiscountLabel(offer)}</span>
                                     {offer.code && (
@@ -379,7 +379,7 @@ const OffersManager: React.FC = () => {
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                     placeholder="e.g., Weekend Special"
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                                 />
                             </div>
 
@@ -393,7 +393,7 @@ const OffersManager: React.FC = () => {
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     placeholder="Describe the offer..."
                                     rows={2}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none resize-none"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none resize-none"
                                 />
                             </div>
 
@@ -406,7 +406,7 @@ const OffersManager: React.FC = () => {
                                     <select
                                         value={formData.discountType}
                                         onChange={(e) => setFormData({ ...formData, discountType: e.target.value as OfferData['discountType'] })}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none bg-white"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none bg-white"
                                     >
                                         <option value="percentage">Percentage (%)</option>
                                         <option value="flat">Flat (₹)</option>
@@ -422,7 +422,7 @@ const OffersManager: React.FC = () => {
                                         min="0"
                                         value={formData.discountValue}
                                         onChange={(e) => setFormData({ ...formData, discountValue: parseFloat(e.target.value) || 0 })}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                                     />
                                 </div>
                             </div>
@@ -438,7 +438,7 @@ const OffersManager: React.FC = () => {
                                         value={formData.code}
                                         onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                                         placeholder="e.g., SAVE20"
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none uppercase"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none uppercase"
                                     />
                                 </div>
                                 <div>
@@ -450,7 +450,7 @@ const OffersManager: React.FC = () => {
                                         min="0"
                                         value={formData.minimumOrder}
                                         onChange={(e) => setFormData({ ...formData, minimumOrder: parseFloat(e.target.value) || 0 })}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                                     />
                                 </div>
                             </div>
@@ -465,7 +465,7 @@ const OffersManager: React.FC = () => {
                                         type="date"
                                         value={formData.validFrom}
                                         onChange={(e) => setFormData({ ...formData, validFrom: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                                     />
                                 </div>
                                 <div>
@@ -476,7 +476,7 @@ const OffersManager: React.FC = () => {
                                         type="date"
                                         value={formData.validTo}
                                         onChange={(e) => setFormData({ ...formData, validTo: e.target.value })}
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                                     />
                                 </div>
                             </div>
@@ -488,7 +488,7 @@ const OffersManager: React.FC = () => {
                                     id="isActive"
                                     checked={formData.isActive}
                                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                                    className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-caramel"
                                 />
                                 <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
                                     Active (visible to customers)
@@ -511,7 +511,7 @@ const OffersManager: React.FC = () => {
                                 <button
                                     type="submit"
                                     disabled={isSaving}
-                                    className="flex-1 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isSaving ? (
                                         <>

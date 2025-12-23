@@ -238,7 +238,7 @@ const Tables: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -285,7 +285,7 @@ const Tables: React.FC = () => {
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors shadow-sm"
           >
             <Plus size={20} />
             Add Table
@@ -313,7 +313,7 @@ const Tables: React.FC = () => {
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <p className="text-sm text-gray-600 mb-1">With QR Codes</p>
-          <p className="text-2xl font-bold text-amber-600">
+          <p className="text-2xl font-bold text-primary-600">
             {tables.filter(t => t.hasQR).length}
           </p>
         </div>
@@ -328,7 +328,7 @@ const Tables: React.FC = () => {
             placeholder="Search by table number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+            className="w-full pl-10 pr-4 py-2 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
           />
         </div>
       </div>
@@ -348,7 +348,7 @@ const Tables: React.FC = () => {
           {!searchTerm && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+              className="px-6 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors"
             >
               Create Table
             </button>
@@ -359,10 +359,10 @@ const Tables: React.FC = () => {
           {filteredTables.map((table) => (
             <div
               key={table.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl shadow-sm border border-caramel-600 overflow-hidden hover:shadow-md transition-shadow"
             >
               {/* Table Header */}
-              <div className="p-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white">
+              <div className="p-3 bg-gradient-to-r from-caramel to-caramel text-white">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-bold">Table {table.tableNumber}</h3>
                   <div className="flex gap-1">
@@ -373,7 +373,7 @@ const Tables: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <p className="text-[10px] text-amber-50">
+                <p className="text-[10px] text-mocha">
                   {table.isActive ? 'Active' : 'Inactive'}
                 </p>
               </div>
@@ -396,7 +396,7 @@ const Tables: React.FC = () => {
                           className="w-8 h-8 rounded-full object-cover bg-white shadow-sm"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-amber-600 text-sm font-bold">
+                        <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-primary-600 text-sm font-bold">
                           {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
                         </div>
                       )}
@@ -423,14 +423,14 @@ const Tables: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => handleDownloadQR(table, 'png')}
-                    className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors"
+                    className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-mocha/30 text-primary-600 rounded-lg hover:bg-mocha/50 transition-colors"
                   >
                     <Download size={16} />
                     PNG
                   </button>
                   <button
                     onClick={() => handleDownloadQR(table, 'svg')}
-                    className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors"
+                    className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-mocha/30 text-primary-600 rounded-lg hover:bg-mocha/50 transition-colors"
                   >
                     <Download size={16} />
                     SVG
@@ -488,7 +488,7 @@ const Tables: React.FC = () => {
                 value={newTableNumber}
                 onChange={(e) => setNewTableNumber(e.target.value)}
                 placeholder="e.g., 1, 2, 3..."
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-3 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none"
                 autoFocus
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !isCreating) {
@@ -512,7 +512,7 @@ const Tables: React.FC = () => {
               <button
                 onClick={handleCreateTable}
                 disabled={isCreating}
-                className="flex-1 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isCreating ? (
                   <>
@@ -650,7 +650,7 @@ const Tables: React.FC = () => {
                       className="w-14 h-14 rounded-full object-cover bg-white shadow-md"
                     />
                   ) : (
-                    <div className="w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center text-amber-600 text-2xl font-bold">
+                    <div className="w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center text-primary-600 text-2xl font-bold">
                       {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
                     </div>
                   )}
@@ -661,14 +661,14 @@ const Tables: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => handleDownloadQR(selectedTable, 'png')}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors"
               >
                 <Download size={20} />
                 Download PNG
               </button>
               <button
                 onClick={() => handleDownloadQR(selectedTable, 'svg')}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors"
               >
                 <Download size={20} />
                 Download SVG

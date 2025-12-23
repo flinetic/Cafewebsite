@@ -87,14 +87,14 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-latte">
       {/* Sidebar */}
       <aside
         className={`${sidebarOpen ? 'w-64' : 'w-20'
-          } bg-gradient-to-b from-amber-700 to-amber-800 text-white transition-all duration-300 flex flex-col`}
+          } bg-gradient-to-b from-caramel to-primary-700 text-white transition-all duration-300 flex flex-col`}
       >
         {/* Logo/Brand */}
-        <div className="p-4 flex items-center justify-between border-b border-amber-600">
+        <div className="p-4 flex items-center justify-between border-b border-caramel/30">
           {sidebarOpen ? (
             <div className="flex items-center gap-3">
               {cafeConfig.logoUrl && !cafeConfig.logoUrl.includes('/assets/') ? (
@@ -104,7 +104,7 @@ const AdminLayout: React.FC = () => {
                   className="w-10 h-10 rounded-full object-cover bg-white"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-amber-600 text-lg font-bold">
+                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary-600 text-lg font-bold">
                   {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
                 </div>
               )}
@@ -118,14 +118,14 @@ const AdminLayout: React.FC = () => {
                 className="w-10 h-10 rounded-full object-cover bg-white mx-auto"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-amber-600 text-lg font-bold mx-auto">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary-600 text-lg font-bold mx-auto">
                 {cafeConfig.cafeName ? cafeConfig.cafeName.charAt(0).toUpperCase() : 'C'}
               </div>
             )
           )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-amber-600 rounded-lg transition-colors"
+            className="p-2 hover:bg-caramel/30 rounded-lg transition-colors"
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -139,8 +139,8 @@ const AdminLayout: React.FC = () => {
               to={item.path}
               className={({ isActive }) =>
                 `flex items-center gap-3 p-3 rounded-lg transition-colors ${isActive
-                  ? 'bg-amber-600 text-white'
-                  : 'hover:bg-amber-600/50'
+                  ? 'bg-caramel text-white'
+                  : 'hover:bg-caramel/30'
                 } ${!sidebarOpen && 'justify-center'}`
               }
             >
@@ -151,9 +151,9 @@ const AdminLayout: React.FC = () => {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-amber-600">
+        <div className="p-4 border-t border-caramel/30">
           {sidebarOpen ? (
-            <div className="text-center text-amber-200 text-sm">
+            <div className="text-center text-mocha text-sm">
               © 2024 BookAVibe
             </div>
           ) : null}
@@ -179,10 +179,10 @@ const AdminLayout: React.FC = () => {
                 <img
                   src={user.profileImage}
                   alt={`${user.firstName} ${user.lastName}`}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-amber-500"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-caramel"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white font-bold text-sm">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-caramel to-caramel flex items-center justify-center text-white font-bold text-sm">
                   {user?.firstName?.charAt(0).toUpperCase()}{user?.lastName?.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -199,16 +199,16 @@ const AdminLayout: React.FC = () => {
             {profileOpen && (
               <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
                 {/* User Info */}
-                <div className="p-4 bg-gradient-to-r from-amber-50 to-cyan-50 border-b border-gray-100">
+                <div className="p-4 bg-gradient-to-r from-latte to-mocha/20 border-b border-milk-foam">
                   <div className="flex items-center gap-3">
                     {user?.profileImage && !user.profileImage.includes('ui-avatars.com') ? (
                       <img
                         src={user.profileImage}
                         alt={`${user.firstName} ${user.lastName}`}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-amber-500"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-caramel"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white font-bold">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-caramel to-caramel flex items-center justify-center text-white font-bold">
                         {user?.firstName?.charAt(0).toUpperCase()}{user?.lastName?.charAt(0).toUpperCase()}
                       </div>
                     )}

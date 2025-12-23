@@ -155,10 +155,10 @@ const RegisterPage: React.FC = () => {
   // Show loading while checking admin status
   if (checkingAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-caramel via-primary-700 to-mocha flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-white mx-auto mb-4" />
-          <p className="text-purple-200">Loading...</p>
+          <p className="text-mocha">Loading...</p>
         </div>
       </div>
     );
@@ -167,21 +167,21 @@ const RegisterPage: React.FC = () => {
   // Show pending approval message
   if (registrationPending) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 flex items-center justify-center px-6 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-caramel via-primary-700 to-mocha flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-lg">
           {/* Logo */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl shadow-2xl mb-6">
-              <Clock className="w-10 h-10 text-amber-600" />
+              <Clock className="w-10 h-10 text-caramel" />
             </div>
             <h1 className="text-4xl font-bold text-white tracking-tight">Registration Pending</h1>
-            <p className="text-purple-200 mt-2 text-lg">Waiting for admin approval</p>
+            <p className="text-mocha mt-2 text-lg">Waiting for admin approval</p>
           </div>
 
           {/* Pending Card */}
           <div className="bg-white rounded-3xl shadow-2xl p-10 text-center">
-            <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Clock className="w-10 h-10 text-amber-600" />
+            <div className="w-20 h-20 bg-mocha/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Clock className="w-10 h-10 text-caramel" />
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-3">Almost There!</h2>
             <p className="text-gray-600 mb-6">
@@ -192,14 +192,14 @@ const RegisterPage: React.FC = () => {
             </p>
             <Link
               to="/login"
-              className="inline-flex items-center justify-center w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200"
+              className="inline-flex items-center justify-center w-full bg-gradient-to-r from-caramel to-mocha text-white py-4 rounded-xl font-semibold text-lg hover:from-caramel hover:to-primary-400 transition-all duration-200"
             >
               Back to Login
             </Link>
           </div>
 
           {/* Footer */}
-          <p className="text-center mt-8 text-purple-200 text-sm">
+          <p className="text-center mt-8 text-mocha text-sm">
             © 2024 BookAVibe. All rights reserved.
           </p>
         </div>
@@ -208,15 +208,15 @@ const RegisterPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-caramel via-primary-700 to-mocha flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl shadow-2xl mb-6">
-            <Coffee className="w-10 h-10 text-purple-600" />
+            <Coffee className="w-10 h-10 text-primary-600" />
           </div>
           <h1 className="text-4xl font-bold text-white tracking-tight">BookAVibe</h1>
-          <p className="text-purple-200 mt-2 text-lg">
+          <p className="text-mocha mt-2 text-lg">
             {!adminExists ? 'Create Admin Account' : 'Join our cafe team'}
           </p>
         </div>
@@ -262,7 +262,7 @@ const RegisterPage: React.FC = () => {
                     value={formData.firstName}
                     onChange={handleChange}
                     placeholder="John"
-                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base"
+                    className="w-full pl-12 pr-4 py-4 border border-milk-foam rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base"
                   />
                 </div>
               </div>
@@ -276,7 +276,7 @@ const RegisterPage: React.FC = () => {
                   value={formData.lastName}
                   onChange={handleChange}
                   placeholder="Doe"
-                  className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base"
+                  className="w-full px-4 py-4 border border-milk-foam rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base"
                 />
               </div>
             </div>
@@ -294,7 +294,7 @@ const RegisterPage: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="john@example.com"
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base"
+                  className="w-full pl-12 pr-4 py-4 border border-milk-foam rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base"
                 />
               </div>
             </div>
@@ -312,7 +312,7 @@ const RegisterPage: React.FC = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+91 9876543210"
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base"
+                  className="w-full pl-12 pr-4 py-4 border border-milk-foam rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base"
                 />
               </div>
             </div>
@@ -329,7 +329,7 @@ const RegisterPage: React.FC = () => {
                     name="role"
                     value={formData.role}
                     onChange={handleChange}
-                    className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base appearance-none bg-white cursor-pointer"
+                    className="w-full pl-12 pr-4 py-4 border border-milk-foam rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base appearance-none bg-white cursor-pointer"
                   >
                     <option value="admin">Admin</option>
                   </select>
@@ -358,7 +358,7 @@ const RegisterPage: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Create a strong password"
-                  className="w-full pl-12 pr-14 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base"
+                  className="w-full pl-12 pr-14 py-4 border border-milk-foam rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base"
                 />
                 <button
                   type="button"
@@ -394,7 +394,7 @@ const RegisterPage: React.FC = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Confirm your password"
-                  className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-base ${formData.confirmPassword && formData.password !== formData.confirmPassword
+                  className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:ring-2 focus:ring-caramel focus:border-transparent transition-all outline-none text-base ${formData.confirmPassword && formData.password !== formData.confirmPassword
                     ? 'border-red-300 bg-red-50'
                     : formData.confirmPassword && formData.password === formData.confirmPassword
                       ? 'border-green-300 bg-green-50'
@@ -411,7 +411,7 @@ const RegisterPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading || !isPasswordValid || formData.password !== formData.confirmPassword}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg hover:shadow-xl mt-8"
+              className="w-full bg-gradient-to-r from-caramel to-mocha text-white py-4 rounded-xl font-semibold text-lg hover:from-caramel hover:to-primary-400 transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg hover:shadow-xl mt-8"
             >
               {isLoading ? (
                 <>
@@ -427,14 +427,14 @@ const RegisterPage: React.FC = () => {
           {/* Sign In Link */}
           <p className="text-center mt-8 text-gray-600 text-lg">
             Already have an account?{' '}
-            <Link to="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
+            <Link to="/login" className="text-primary-600 hover:text-mocha font-semibold">
               Sign In
             </Link>
           </p>
         </div>
 
         {/* Footer */}
-        <p className="text-center mt-8 text-purple-200 text-sm">
+        <p className="text-center mt-8 text-mocha text-sm">
           © 2024 BookAVibe. All rights reserved.
         </p>
       </div>
