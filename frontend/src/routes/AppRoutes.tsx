@@ -114,7 +114,9 @@ const AppRoutes: React.FC = () => {
           </EmailVerificationGuard>
         } />
         <Route path="orders" element={
-          <Orders />
+          <EmailVerificationGuard>
+            <Orders />
+          </EmailVerificationGuard>
         } />
         {/* Menu is accessible without email verification */}
         <Route path="menu" element={

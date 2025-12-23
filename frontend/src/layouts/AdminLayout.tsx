@@ -15,6 +15,7 @@ import {
   User
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import logo from '../assets/logo.svg';
 
 const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -65,7 +66,7 @@ const AdminLayout: React.FC = () => {
   };
 
   const getRoleBadgeColor = (role: string | undefined) => {
-    if (role === 'admin') return 'bg-red-100 text-red-700';
+    if (role === 'admin') return 'bg-amber-100 text-amber-700';
     if (role === 'kitchen') return 'bg-orange-100 text-orange-700';
     return 'bg-blue-100 text-blue-700';
   };
@@ -75,14 +76,29 @@ const AdminLayout: React.FC = () => {
       {/* Sidebar */}
       <aside
         className={`${sidebarOpen ? 'w-64' : 'w-20'
-          } bg-gradient-to-b from-amber-600 to-orange-700 text-white transition-all duration-300 flex flex-col`}
+          } bg-gradient-to-b from-amber-700 to-amber-800 text-white transition-all duration-300 flex flex-col`}
       >
         {/* Logo/Brand */}
-        <div className="p-4 flex items-center justify-between border-b border-amber-500">
-          {sidebarOpen && <h1 className="text-xl font-bold">BookAVibe</h1>}
+        <div className="p-4 flex items-center justify-between border-b border-amber-600">
+          {sidebarOpen ? (
+            <div className="flex items-center gap-3">
+              <img
+                src={logo}
+                alt="BookAVibe"
+                className="w-10 h-10 rounded-full object-cover bg-white"
+              />
+              <h1 className="text-xl font-bold">BookAVibe</h1>
+            </div>
+          ) : (
+            <img
+              src={logo}
+              alt="BookAVibe"
+              className="w-10 h-10 rounded-full object-cover bg-white mx-auto"
+            />
+          )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-amber-500 rounded-lg transition-colors"
+            className="p-2 hover:bg-amber-600 rounded-lg transition-colors"
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -96,8 +112,8 @@ const AdminLayout: React.FC = () => {
               to={item.path}
               className={({ isActive }) =>
                 `flex items-center gap-3 p-3 rounded-lg transition-colors ${isActive
-                  ? 'bg-amber-500 text-white'
-                  : 'hover:bg-amber-500/50'
+                  ? 'bg-amber-600 text-white'
+                  : 'hover:bg-amber-600/50'
                 } ${!sidebarOpen && 'justify-center'}`
               }
             >
@@ -108,7 +124,7 @@ const AdminLayout: React.FC = () => {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-amber-500">
+        <div className="p-4 border-t border-amber-600">
           {sidebarOpen ? (
             <div className="text-center text-amber-200 text-sm">
               © 2024 BookAVibe
@@ -136,10 +152,10 @@ const AdminLayout: React.FC = () => {
                 <img
                   src={user.profileImage}
                   alt={`${user.firstName} ${user.lastName}`}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-amber-400"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-amber-500"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white font-bold text-sm">
                   {user?.firstName?.charAt(0).toUpperCase()}{user?.lastName?.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -156,16 +172,16 @@ const AdminLayout: React.FC = () => {
             {profileOpen && (
               <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
                 {/* User Info */}
-                <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-gray-100">
+                <div className="p-4 bg-gradient-to-r from-amber-50 to-cyan-50 border-b border-gray-100">
                   <div className="flex items-center gap-3">
                     {user?.profileImage && !user.profileImage.includes('ui-avatars.com') ? (
                       <img
                         src={user.profileImage}
                         alt={`${user.firstName} ${user.lastName}`}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-amber-400"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-amber-500"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white font-bold">
                         {user?.firstName?.charAt(0).toUpperCase()}{user?.lastName?.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -216,4 +232,3 @@ const AdminLayout: React.FC = () => {
 };
 
 export default AdminLayout;
-

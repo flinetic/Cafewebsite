@@ -11,12 +11,12 @@ import {
   Eye,
   Loader2,
   CheckCircle2,
-  XCircle,
-  Coffee
+  XCircle
 } from 'lucide-react';
 import { tableApi } from '../../services/api';
 import toast from 'react-hot-toast';
 import type { AxiosError } from 'axios';
+import logo from '../../assets/logo.svg';
 
 interface Table {
   id: string;
@@ -229,7 +229,7 @@ const Tables: React.FC = () => {
               className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
             >
               {/* Table Header */}
-              <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+              <div className="p-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-bold">Table {table.tableNumber}</h3>
                   <div className="flex gap-1">
@@ -256,11 +256,11 @@ const Tables: React.FC = () => {
                     />
                     {/* Logo Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="bg-white p-1 rounded-full shadow-sm">
-                        <div className="w-6 h-6 bg-amber-600 rounded-full flex items-center justify-center text-white">
-                          <Coffee size={14} />
-                        </div>
-                      </div>
+                      <img
+                        src={logo}
+                        alt="BookAVibe"
+                        className="w-8 h-8 rounded-full object-cover bg-white shadow-sm"
+                      />
                     </div>
                     <button
                       onClick={() => {
@@ -422,11 +422,11 @@ const Tables: React.FC = () => {
                 />
                 {/* Logo Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="bg-white p-2 rounded-full shadow-md">
-                    <div className="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center text-white">
-                      <Coffee size={24} />
-                    </div>
-                  </div>
+                  <img
+                    src={logo}
+                    alt="BookAVibe"
+                    className="w-14 h-14 rounded-full object-cover bg-white shadow-md"
+                  />
                 </div>
               </div>
             </div>

@@ -19,6 +19,7 @@ import {
 import { orderApi, offerApi, authApi } from '../../services/api';
 import toast from 'react-hot-toast';
 import type { AxiosError } from 'axios';
+import logo from '../../assets/logo.svg';
 
 interface Stats {
   totalOrders: number;
@@ -183,13 +184,22 @@ const Dashboard: React.FC = () => {
       )}
 
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-6 text-white">
-        <h1 className="text-2xl font-bold mb-1">
-          Welcome back, {user?.firstName}! 👋
-        </h1>
-        <p className="text-amber-100">
-          Here's your cafe overview for today
-        </p>
+      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-6 text-white">
+        <div className="flex items-center gap-4">
+          <img
+            src={logo}
+            alt="BookAVibe"
+            className="w-16 h-16 rounded-full object-cover bg-white"
+          />
+          <div>
+            <h1 className="text-2xl font-bold mb-1">
+              Welcome back, {user?.firstName}! 👋
+            </h1>
+            <p className="text-amber-100">
+              Here's your cafe overview for today
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Today's Stats */}
