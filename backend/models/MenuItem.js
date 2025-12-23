@@ -80,12 +80,12 @@ menuItemSchema.set('toJSON', {
 });
 
 // Static method to get menu by category
-menuItemSchema.statics.getByCategory = async function(category) {
+menuItemSchema.statics.getByCategory = async function (category) {
     return this.find({ category, isAvailable: true }).sort({ sortOrder: 1, name: 1 });
 };
 
 // Static method to get all available items
-menuItemSchema.statics.getAvailableMenu = async function() {
+menuItemSchema.statics.getAvailableMenu = async function () {
     return this.find({ isAvailable: true }).sort({ category: 1, sortOrder: 1, name: 1 });
 };
 
