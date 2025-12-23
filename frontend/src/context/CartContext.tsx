@@ -39,7 +39,7 @@ const CART_STORAGE_KEY = 'bookavibe_cart';
 const CUSTOMER_STORAGE_KEY = 'bookavibe_customer';
 const TABLE_STORAGE_KEY = 'bookavibe_table';
 const CUSTOMER_EXPIRY_KEY = 'bookavibe_customer_expiry';
-const CUSTOMER_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
+const CUSTOMER_EXPIRY_MS = 1 * 60 * 1000; // 30 minutes
 
 interface CartProviderProps {
   children: ReactNode;
