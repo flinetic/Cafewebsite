@@ -156,6 +156,84 @@ class TableService {
         await table.save();
         return table;
     }
+
+    /**
+     * Create multiple tables in bulk
+     */
+    async createBulkTables(startNumber, count) {
+        if (count < 1 || count > 50) {
+            throw new Error('Count must be between 1 and 50');
+        }
+
+        const config = await CafeConfig.getConfig();
+        const createdTables = [];
+        const skippedNumbers = [];
+
+        for (let i = 0; i < count; i++) {
+            const tableNumber = startNumber + i;
+
+            // Check if table already exists
+            const existingTable = await Table.findOne({ tableNumber });
+            if (existingTable) {
+                skippedNumbers.push(tableNumber);
+                continue;
+            }
+
+            // Generate QR code
+            const qrData = await qrService.generateQRCode(tableNumber, config.menuBaseUrl);
+
+            // Create table
+            const table = await Table.create({
+                tableNumber,
+                qrCodeSvg: qrData.svg,
+                qrCodePng: qrData.png,
+                qrCodeDataUrl: qrData.dataUrl
+            });
+
+            createdTables.push(table);
+        }
+
+        return {
+            created: createdTables,
+            skipped: skippedNumbers,
+            createdCount: createdTables.length,
+            skippedCount: skippedNumbers.length
+        };
+    }
+
+    /**
+     * Activate all tables
+     */
+    async activateAll() {
+        const result = await Table.updateMany({}, { isActive: true });
+        return {
+            modifiedCount: result.modifiedCount,
+            message: 'All tables activated'
+        };
+    }
+
+    /**
+     * Deactivate all tables
+     */
+    async deactivateAll() {
+        const result = await Table.updateMany({}, { isActive: false });
+        return {
+            modifiedCount: result.modifiedCount,
+            message: 'All tables deactivated'
+        };
+    }
+
+    /**
+     * Delete all tables
+     */
+    async deleteAll() {
+        const count = await Table.countDocuments();
+        await Table.deleteMany({});
+        return {
+            deletedCount: count,
+            message: `${count} tables deleted`
+        };
+    }
 }
 
 module.exports = new TableService();

@@ -140,3 +140,71 @@ exports.toggleActive = asyncHandler(async (req, res) => {
         data: table
     });
 });
+
+// @desc    Create multiple tables in bulk
+// @route   POST /api/tables/bulk
+// @access  Private/Admin
+exports.createBulkTables = asyncHandler(async (req, res) => {
+    const { startNumber, count } = req.body;
+
+    if (!startNumber || startNumber < 1) {
+        return res.status(400).json({
+            success: false,
+            message: 'Valid start number is required (minimum 1)'
+        });
+    }
+
+    if (!count || count < 1 || count > 50) {
+        return res.status(400).json({
+            success: false,
+            message: 'Count must be between 1 and 50'
+        });
+    }
+
+    const result = await tableService.createBulkTables(parseInt(startNumber), parseInt(count));
+
+    res.status(201).json({
+        success: true,
+        message: `Created ${result.createdCount} tables${result.skippedCount > 0 ? `, skipped ${result.skippedCount} existing` : ''}`,
+        data: result
+    });
+});
+
+// @desc    Activate all tables
+// @route   PATCH /api/tables/activate-all
+// @access  Private/Admin
+exports.activateAll = asyncHandler(async (req, res) => {
+    const result = await tableService.activateAll();
+
+    res.json({
+        success: true,
+        message: `${result.modifiedCount} tables activated`,
+        data: result
+    });
+});
+
+// @desc    Deactivate all tables
+// @route   PATCH /api/tables/deactivate-all
+// @access  Private/Admin
+exports.deactivateAll = asyncHandler(async (req, res) => {
+    const result = await tableService.deactivateAll();
+
+    res.json({
+        success: true,
+        message: `${result.modifiedCount} tables deactivated`,
+        data: result
+    });
+});
+
+// @desc    Delete all tables
+// @route   DELETE /api/tables/delete-all
+// @access  Private/Admin
+exports.deleteAll = asyncHandler(async (req, res) => {
+    const result = await tableService.deleteAll();
+
+    res.json({
+        success: true,
+        message: result.message,
+        data: result
+    });
+});

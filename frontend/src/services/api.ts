@@ -107,6 +107,19 @@ export const tableApi = {
   // Get QR code SVG URL
   getQRSvgUrl: (id: string) =>
     `${API_URL}/tables/${id}/qr/svg`,
+
+  // Create multiple tables in bulk
+  createBulkTables: (startNumber: number, count: number) =>
+    api.post('/tables/bulk', { startNumber, count }),
+
+  // Activate all tables
+  activateAll: () => api.patch('/tables/activate-all'),
+
+  // Deactivate all tables
+  deactivateAll: () => api.patch('/tables/deactivate-all'),
+
+  // Delete all tables
+  deleteAll: () => api.delete('/tables/delete-all'),
 };
 
 // ==================== Auth API ====================

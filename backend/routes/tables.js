@@ -8,6 +8,12 @@ const { adminOnly } = require('../middleware/roleAuth');
 router.use(protect);
 router.use(adminOnly);
 
+// Bulk operations (must be before :id routes)
+router.post('/bulk', tableController.createBulkTables);
+router.patch('/activate-all', tableController.activateAll);
+router.patch('/deactivate-all', tableController.deactivateAll);
+router.delete('/delete-all', tableController.deleteAll);
+
 // Table CRUD routes
 router.post('/', tableController.createTable);
 router.get('/', tableController.getAllTables);
@@ -25,3 +31,4 @@ router.get('/:id/qr/png', tableController.getQRPng);
 router.get('/:id/qr/svg', tableController.getQRSvg);
 
 module.exports = router;
+

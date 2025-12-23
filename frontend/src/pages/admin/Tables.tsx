@@ -11,7 +11,10 @@ import {
   Eye,
   Loader2,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Layers,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 import { tableApi, configApi } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -41,6 +44,14 @@ const Tables: React.FC = () => {
   const [newTableNumber, setNewTableNumber] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [cafeConfig, setCafeConfig] = useState<{ logoUrl?: string; cafeName?: string }>({});
+
+  // Bulk operations state
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkStartNumber, setBulkStartNumber] = useState('');
+  const [bulkCount, setBulkCount] = useState('');
+  const [isBulkCreating, setIsBulkCreating] = useState(false);
+  const [isTogglingAll, setIsTogglingAll] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
 
   useEffect(() => {
     fetchTables();
@@ -141,6 +152,85 @@ const Tables: React.FC = () => {
     document.body.removeChild(link);
   };
 
+  const handleBulkCreate = async () => {
+    const start = parseInt(bulkStartNumber);
+    const count = parseInt(bulkCount);
+
+    if (!start || start < 1) {
+      toast.error('Please enter a valid start number');
+      return;
+    }
+
+    if (!count || count < 1 || count > 50) {
+      toast.error('Count must be between 1 and 50');
+      return;
+    }
+
+    setIsBulkCreating(true);
+    try {
+      const response = await tableApi.createBulkTables(start, count);
+      const result = response.data.data;
+      toast.success(`Created ${result.createdCount} tables${result.skippedCount > 0 ? `, skipped ${result.skippedCount} existing` : ''}`);
+      setBulkStartNumber('');
+      setBulkCount('');
+      setShowBulkModal(false);
+      fetchTables();
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      toast.error(axiosError.response?.data?.message || 'Failed to create tables');
+    } finally {
+      setIsBulkCreating(false);
+    }
+  };
+
+  const handleActivateAll = async () => {
+    if (!confirm('Are you sure you want to activate ALL tables?')) return;
+
+    setIsTogglingAll(true);
+    try {
+      const response = await tableApi.activateAll();
+      toast.success(response.data.message);
+      fetchTables();
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      toast.error(axiosError.response?.data?.message || 'Failed to activate tables');
+    } finally {
+      setIsTogglingAll(false);
+    }
+  };
+
+  const handleDeactivateAll = async () => {
+    if (!confirm('Are you sure you want to deactivate ALL tables? Customers will not be able to scan QR codes.')) return;
+
+    setIsTogglingAll(true);
+    try {
+      const response = await tableApi.deactivateAll();
+      toast.success(response.data.message);
+      fetchTables();
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      toast.error(axiosError.response?.data?.message || 'Failed to deactivate tables');
+    } finally {
+      setIsTogglingAll(false);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!confirm('⚠️ WARNING: This will permanently delete ALL tables and their QR codes. This action cannot be undone. Are you absolutely sure?')) return;
+
+    setIsDeletingAll(true);
+    try {
+      const response = await tableApi.deleteAll();
+      toast.success(response.data.message);
+      fetchTables();
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      toast.error(axiosError.response?.data?.message || 'Failed to delete tables');
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+
   const filteredTables = tables.filter(table =>
     table.tableNumber.toString().includes(searchTerm)
   );
@@ -156,18 +246,51 @@ const Tables: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Table Management</h1>
           <p className="text-gray-600 mt-1">Manage tables and their QR codes</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
-        >
-          <Plus size={20} />
-          Add Table
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setShowBulkModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <Layers size={20} />
+            Bulk Add
+          </button>
+          <button
+            onClick={handleActivateAll}
+            disabled={isTogglingAll || tables.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50"
+          >
+            {isTogglingAll ? <Loader2 size={20} className="animate-spin" /> : <ToggleRight size={20} />}
+            Activate All
+          </button>
+          <button
+            onClick={handleDeactivateAll}
+            disabled={isTogglingAll || tables.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50"
+          >
+            {isTogglingAll ? <Loader2 size={20} className="animate-spin" /> : <ToggleLeft size={20} />}
+            Deactivate All
+          </button>
+          <button
+            onClick={handleDeleteAll}
+            disabled={isDeletingAll || tables.length === 0}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors shadow-sm disabled:opacity-50"
+          >
+            {isDeletingAll ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} />}
+            Delete All
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+          >
+            <Plus size={20} />
+            Add Table
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -398,6 +521,88 @@ const Tables: React.FC = () => {
                   </>
                 ) : (
                   'Create Table'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Create Modal */}
+      {showBulkModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Bulk Add Tables</h2>
+            <p className="text-gray-600 mb-6">
+              Create multiple tables at once. Existing table numbers will be skipped.
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Start Number
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={bulkStartNumber}
+                  onChange={(e) => setBulkStartNumber(e.target.value)}
+                  placeholder="e.g., 1"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Number of Tables
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={bulkCount}
+                  onChange={(e) => setBulkCount(e.target.value)}
+                  placeholder="e.g., 10 (max 50)"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                />
+                <p className="text-xs text-gray-500 mt-1">Maximum 50 tables at once</p>
+              </div>
+              {bulkStartNumber && bulkCount && (
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="text-sm text-blue-700">
+                    This will create tables <strong>{bulkStartNumber}</strong> to <strong>{parseInt(bulkStartNumber) + parseInt(bulkCount) - 1}</strong>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowBulkModal(false);
+                  setBulkStartNumber('');
+                  setBulkCount('');
+                }}
+                className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={isBulkCreating}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkCreate}
+                disabled={isBulkCreating}
+                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isBulkCreating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Layers size={20} />
+                    Create Tables
+                  </>
                 )}
               </button>
             </div>
