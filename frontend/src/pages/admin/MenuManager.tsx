@@ -14,7 +14,10 @@ import {
   Flame,
   Clock,
   Upload,
-  ImageIcon
+  ImageIcon,
+  FileJson,
+  AlertCircle,
+  CheckCircle
 } from 'lucide-react';
 import { menuApi, type MenuItemData } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -73,6 +76,13 @@ const MenuManager: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Bulk import state
+  const [showBulkImportModal, setShowBulkImportModal] = useState(false);
+  const [bulkImportData, setBulkImportData] = useState<MenuItemData[]>([]);
+  const [bulkImportError, setBulkImportError] = useState<string | null>(null);
+  const [isBulkImporting, setIsBulkImporting] = useState(false);
+  const bulkFileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formData, setFormData] = useState<MenuItemData>({
@@ -259,6 +269,79 @@ const MenuManager: React.FC = () => {
     }
   };
 
+  // Bulk import handlers
+  const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setBulkImportError(null);
+    setBulkImportData([]);
+
+    if (!file) return;
+
+    if (!file.name.endsWith('.json')) {
+      setBulkImportError('Please select a valid JSON file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const parsed = JSON.parse(content);
+
+        if (!Array.isArray(parsed)) {
+          setBulkImportError('JSON must be an array of menu items');
+          return;
+        }
+
+        // Validate items
+        const invalidItems = parsed.filter((item: any) => !item.name || item.price === undefined);
+        if (invalidItems.length > 0) {
+          setBulkImportError(`${invalidItems.length} item(s) missing required fields (name, price)`);
+          return;
+        }
+
+        setBulkImportData(parsed);
+      } catch (err) {
+        setBulkImportError('Invalid JSON format. Please check your file.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleBulkImport = async () => {
+    if (bulkImportData.length === 0) {
+      toast.error('No items to import');
+      return;
+    }
+
+    setIsBulkImporting(true);
+    try {
+      const response = await menuApi.bulkImport(bulkImportData);
+      toast.success(response.data.message || `Successfully imported ${bulkImportData.length} items`);
+      setShowBulkImportModal(false);
+      setBulkImportData([]);
+      setBulkImportError(null);
+      if (bulkFileInputRef.current) {
+        bulkFileInputRef.current.value = '';
+      }
+      fetchItems();
+    } catch (error) {
+      const axiosError = error as AxiosError<ErrorResponse>;
+      toast.error(axiosError.response?.data?.message || 'Failed to import items');
+    } finally {
+      setIsBulkImporting(false);
+    }
+  };
+
+  const closeBulkImportModal = () => {
+    setShowBulkImportModal(false);
+    setBulkImportData([]);
+    setBulkImportError(null);
+    if (bulkFileInputRef.current) {
+      bulkFileInputRef.current.value = '';
+    }
+  };
+
   // Filter items
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -292,13 +375,22 @@ const MenuManager: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-800">Menu Manager</h1>
           <p className="text-gray-600 mt-1">Manage your restaurant menu items</p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors shadow-sm"
-        >
-          <Plus size={20} />
-          Add Item
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowBulkImportModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white text-caramel border-2 border-caramel rounded-lg hover:bg-caramel/10 transition-colors shadow-sm"
+          >
+            <FileJson size={20} />
+            Bulk Import
+          </button>
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors shadow-sm"
+          >
+            <Plus size={20} />
+            Add Item
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -724,6 +816,149 @@ const MenuManager: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Import Modal */}
+      {showBulkImportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full p-6 my-8 max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <FileJson className="text-caramel" />
+                Bulk Import Menu Items
+              </h2>
+              <button
+                onClick={closeBulkImportModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-4 flex-1 overflow-y-auto">
+              {/* File Upload */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Select JSON File
+                </label>
+                <input
+                  type="file"
+                  ref={bulkFileInputRef}
+                  onChange={handleBulkFileChange}
+                  accept=".json"
+                  className="w-full px-4 py-3 border border-milk-foam rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-caramel file:text-white file:cursor-pointer hover:file:bg-mocha"
+                />
+              </div>
+
+              {/* Error Message */}
+              {bulkImportError && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                  <AlertCircle size={20} />
+                  <span>{bulkImportError}</span>
+                </div>
+              )}
+
+              {/* Preview */}
+              {bulkImportData.length > 0 && (
+                <div className="border border-green-200 rounded-lg overflow-hidden">
+                  <div className="bg-green-50 px-4 py-2 flex items-center gap-2 text-green-700 font-medium">
+                    <CheckCircle size={18} />
+                    {bulkImportData.length} item(s) ready to import
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th className="text-left px-4 py-2 font-medium text-gray-600">#</th>
+                          <th className="text-left px-4 py-2 font-medium text-gray-600">Name</th>
+                          <th className="text-left px-4 py-2 font-medium text-gray-600">Category</th>
+                          <th className="text-right px-4 py-2 font-medium text-gray-600">Price</th>
+                          <th className="text-center px-4 py-2 font-medium text-gray-600">Tags</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {bulkImportData.map((item, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="px-4 py-2 text-gray-500">{index + 1}</td>
+                            <td className="px-4 py-2 font-medium text-gray-800">{item.name}</td>
+                            <td className="px-4 py-2 text-gray-600">{getCategoryLabel(item.category || 'main-course')}</td>
+                            <td className="px-4 py-2 text-right text-gray-800">₹{item.price}</td>
+                            <td className="px-4 py-2 text-center">
+                              <div className="flex justify-center gap-1">
+                                {item.isVegetarian && <Leaf size={14} className="text-green-600" />}
+                                {item.isSpicy && <Flame size={14} className="text-red-600" />}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Sample JSON Format */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-700 mb-2">Sample JSON Format</h4>
+                <pre className="text-xs bg-gray-800 text-green-400 p-3 rounded-lg overflow-x-auto">
+                  {`[
+  {
+    "name": "Margherita Pizza",
+    "description": "Classic cheese pizza with fresh basil",
+    "price": 299,
+    "category": "main-course",
+    "isVegetarian": true,
+    "isSpicy": false,
+    "preparationTime": 20
+  },
+  {
+    "name": "Espresso",
+    "description": "Strong Italian coffee",
+    "price": 99,
+    "category": "beverages",
+    "isVegetarian": true,
+    "preparationTime": 5
+  }
+]`}
+                </pre>
+                <p className="text-xs text-gray-500 mt-2">
+                  <strong>Required fields:</strong> name, price<br />
+                  <strong>Optional fields:</strong> description, category (appetizers, main-course, desserts, beverages, snacks, specials), isVegetarian, isVegan, isSpicy, preparationTime, image, tags
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4 mt-4 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={closeBulkImportModal}
+                className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={isBulkImporting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkImport}
+                disabled={isBulkImporting || bulkImportData.length === 0}
+                className="flex-1 px-4 py-3 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isBulkImporting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Importing...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={20} />
+                    Import {bulkImportData.length > 0 ? `${bulkImportData.length} Items` : 'Items'}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -35,6 +35,9 @@ router.get('/admin/all', protect, adminOnly, menuController.getAllItems);
 // Upload menu item image - Admin only
 router.post('/upload-image', protect, adminOnly, uploadMiddleware.single('image'), handleUploadError, menuController.uploadImage);
 
+// Bulk import menu items from JSON - Admin only
+router.post('/bulk-import', protect, adminOnly, menuController.bulkImport);
+
 // Create new item - Admin only
 router.post('/', protect, adminOnly, menuController.createItem);
 

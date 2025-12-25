@@ -89,7 +89,7 @@ class MenuService {
     async getMenuGroupedByCategory() {
         const items = await MenuItem.find({ isAvailable: true })
             .sort({ sortOrder: 1, name: 1 });
-        
+
         const grouped = {};
         items.forEach(item => {
             if (!grouped[item.category]) {
@@ -97,7 +97,7 @@ class MenuService {
             }
             grouped[item.category].push(item);
         });
-        
+
         return grouped;
     }
 
@@ -135,6 +135,32 @@ class MenuService {
         }));
         await MenuItem.bulkWrite(bulkOps);
         return true;
+    }
+
+    /**
+     * Bulk import menu items from JSON
+     */
+    async bulkImport(items) {
+        const validItems = items.map(item => ({
+            name: item.name,
+            description: item.description || '',
+            price: Number(item.price) || 0,
+            category: item.category || 'main-course',
+            image: item.image || null,
+            isAvailable: item.isAvailable !== false,
+            isVegetarian: Boolean(item.isVegetarian),
+            isVegan: Boolean(item.isVegan),
+            isSpicy: Boolean(item.isSpicy),
+            preparationTime: Number(item.preparationTime) || 15,
+            tags: Array.isArray(item.tags) ? item.tags : [],
+            sortOrder: Number(item.sortOrder) || 0
+        }));
+
+        const result = await MenuItem.insertMany(validItems, { ordered: false });
+        return {
+            created: result.length,
+            items: result
+        };
     }
 }
 

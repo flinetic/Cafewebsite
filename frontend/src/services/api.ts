@@ -279,6 +279,9 @@ export const menuApi = {
       },
     });
   },
+
+  // Bulk import menu items from JSON
+  bulkImport: (items: MenuItemData[]) => api.post('/menu/bulk-import', { items }),
 };
 
 // ==================== Order API ====================

@@ -194,3 +194,34 @@ exports.uploadImage = asyncHandler(async (req, res) => {
     });
 });
 
+// @desc    Bulk import menu items from JSON
+// @route   POST /api/menu/bulk-import
+// @access  Private/Admin
+exports.bulkImport = asyncHandler(async (req, res) => {
+    const { items } = req.body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'Items array is required and must not be empty'
+        });
+    }
+
+    // Validate each item has required fields
+    const invalidItems = items.filter(item => !item.name || item.price === undefined);
+    if (invalidItems.length > 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'Each item must have at least a name and price'
+        });
+    }
+
+    const result = await menuService.bulkImport(items);
+
+    res.status(201).json({
+        success: true,
+        message: `Successfully imported ${result.created} items`,
+        data: result
+    });
+});
+
