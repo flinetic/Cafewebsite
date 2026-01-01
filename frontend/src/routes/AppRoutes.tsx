@@ -109,31 +109,31 @@ const AppRoutes: React.FC = () => {
 
         {/* All other routes require email verification */}
         <Route path="tables" element={
-          <EmailVerificationGuard>
-            <AdminOnlyRoute>
-              <Tables />
-            </AdminOnlyRoute>
-          </EmailVerificationGuard>
+          // <EmailVerificationGuard>
+          <AdminOnlyRoute>
+            <Tables />
+          </AdminOnlyRoute>
+          // </EmailVerificationGuard>
         } />
         <Route path="orders" element={
-          <EmailVerificationGuard>
-            <Orders />
-          </EmailVerificationGuard>
+          // <EmailVerificationGuard>
+          <Orders />
+          // </EmailVerificationGuard>
         } />
         {/* Menu is accessible without email verification */}
         <Route path="menu" element={
-          <EmailVerificationGuard>
-            <AdminOnlyRoute>
-              <MenuManager />
-            </AdminOnlyRoute>
-          </EmailVerificationGuard>
+          //<EmailVerificationGuard>
+          <AdminOnlyRoute>
+            <MenuManager />
+          </AdminOnlyRoute>
+          // </EmailVerificationGuard>
         } />
         <Route path="offers" element={
-          <EmailVerificationGuard>
-            <AdminOnlyRoute>
-              <OffersManager />
-            </AdminOnlyRoute>
-          </EmailVerificationGuard>
+          // <EmailVerificationGuard>
+          <AdminOnlyRoute>
+            <OffersManager />
+          </AdminOnlyRoute>
+          // </EmailVerificationGuard>
         } />
         {/* Settings is accessible without email verification */}
         <Route path="settings" element={

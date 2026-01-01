@@ -49,32 +49,32 @@ const Dashboard: React.FC = () => {
   }, []);
 
   // Refresh user data when window gains focus (after email verification in another tab)
-  useEffect(() => {
-    const handleFocus = () => {
-      // Only refresh if email is not verified yet
-      if (user && !user.isEmailVerified) {
-        refreshUser();
-      }
-    };
+  // useEffect(() => {
+  //   const handleFocus = () => {
+  //     // Only refresh if email is not verified yet
+  //     if (user && !user.isEmailVerified) {
+  //       refreshUser();
+  //     }
+  //   };
 
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [user, refreshUser]);
+  //   window.addEventListener('focus', handleFocus);
+  //   return () => window.removeEventListener('focus', handleFocus);
+  // }, [user, refreshUser]);
 
-  const handleResendVerification = async () => {
-    if (!user?.email) return;
+  // const handleResendVerification = async () => {
+  //   if (!user?.email) return;
 
-    setResending(true);
-    try {
-      await authApi.resendVerification(user.email);
-      toast.success('Verification email sent! Check your inbox.');
-    } catch (error) {
-      const axiosError = error as AxiosError<ErrorResponse>;
-      toast.error(axiosError.response?.data?.message || 'Failed to send verification email');
-    } finally {
-      setResending(false);
-    }
-  };
+  //   setResending(true);
+  //   try {
+  //     await authApi.resendVerification(user.email);
+  //     toast.success('Verification email sent! Check your inbox.');
+  //   } catch (error) {
+  //     const axiosError = error as AxiosError<ErrorResponse>;
+  //     toast.error(axiosError.response?.data?.message || 'Failed to send verification email');
+  //   } finally {
+  //     setResending(false);
+  //   }
+  // };
 
   const fetchDashboardData = async () => {
     try {
@@ -149,7 +149,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Email Verification Banner */}
-      {user && !user.isEmailVerified && (
+      {/* {user && !user.isEmailVerified && (
         <div className="bg-mocha/20 border border-mocha rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-mocha/30 rounded-full flex items-center justify-center flex-shrink-0">
@@ -183,7 +183,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-caramel to-caramel rounded-2xl p-6 text-white">
