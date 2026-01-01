@@ -136,6 +136,9 @@ export const authApi = {
   // Reset password with token
   resetPassword: (token: string, password: string) =>
     api.post(`/auth/reset-password/${token}`, { password }),
+
+  // Verify email token
+  verifyEmail: (token: string) => api.get(`/auth/verify-email/${token}`),
 };
 
 // ==================== Staff API ====================

@@ -30,7 +30,7 @@ import Settings from '../pages/admin/Settings';
 // Protected Route Components
 import ProtectedRoute from '../components/ProtectedRoute';
 import LocationGuard from '../components/LocationGuard';
-// import EmailVerificationGuard from '../components/EmailVerificationGuard';
+import EmailVerificationGuard from '../components/EmailVerificationGuard';
 
 // Role-based redirect component - redirects kitchen users to Orders
 const AdminOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -116,24 +116,24 @@ const AppRoutes: React.FC = () => {
           // </EmailVerificationGuard>
         } />
         <Route path="orders" element={
-          // <EmailVerificationGuard>
-          <Orders />
-          // </EmailVerificationGuard>
+          <EmailVerificationGuard>
+            <Orders />
+          </EmailVerificationGuard>
         } />
         {/* Menu is accessible without email verification */}
         <Route path="menu" element={
-          //<EmailVerificationGuard>
-          <AdminOnlyRoute>
-            <MenuManager />
-          </AdminOnlyRoute>
-          // </EmailVerificationGuard>
+          <EmailVerificationGuard>
+            <AdminOnlyRoute>
+              <MenuManager />
+            </AdminOnlyRoute>
+          </EmailVerificationGuard>
         } />
         <Route path="offers" element={
-          // <EmailVerificationGuard>
-          <AdminOnlyRoute>
-            <OffersManager />
-          </AdminOnlyRoute>
-          // </EmailVerificationGuard>
+          <EmailVerificationGuard>
+            <AdminOnlyRoute>
+              <OffersManager />
+            </AdminOnlyRoute>
+          </EmailVerificationGuard>
         } />
         {/* Settings is accessible without email verification */}
         <Route path="settings" element={
