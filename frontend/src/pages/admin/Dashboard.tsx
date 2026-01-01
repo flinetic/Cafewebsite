@@ -14,9 +14,10 @@ import {
   Loader2,
   ArrowRight,
   AlertCircle,
-  Send
+  // Send
 } from 'lucide-react';
-import { orderApi, offerApi, authApi, configApi } from '../../services/api';
+// USE THIS IN BELOW AFTER DOMAIN PURCHASE FOR EMAIL VERIFICATION authApi
+import { orderApi, offerApi, configApi } from '../../services/api';
 import toast from 'react-hot-toast';
 import type { AxiosError } from 'axios';
 
@@ -35,13 +36,13 @@ interface ErrorResponse {
 }
 
 const Dashboard: React.FC = () => {
-  const { user, refreshUser } = useAuth();
+  const { user } = useAuth(); // ADD refreshUser WHEN DOMAIN PURCHASE FOR EMAIL VERIFICATION
   const navigate = useNavigate();
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [activeOffers, setActiveOffers] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [resending, setResending] = useState(false);
+  // const [resending, setResending] = useState(false);
   const [cafeConfig, setCafeConfig] = useState<{ logoUrl?: string; cafeName?: string }>({});
 
   useEffect(() => {
