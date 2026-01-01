@@ -382,10 +382,9 @@ exports.verifyEmail = asyncHandler(async (req, res) => {
   }).select("+verificationToken +verificationTokenExpire");
 
   if (!staff) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid or expired verification token",
-    });
+    // Redirect to frontend with error status
+    const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
+    return res.redirect(`${frontendURL}/email-verified?status=failed`);
   }
 
   // Update verification status
@@ -402,9 +401,9 @@ exports.verifyEmail = asyncHandler(async (req, res) => {
     "success"
   );
 
-  // Redirect to frontend login page with success message
+  // Redirect to frontend email verified page
   const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
-  res.redirect(`${frontendURL}/login?verified=true`);
+  res.redirect(`${frontendURL}/email-verified`);
 });
 
 /**

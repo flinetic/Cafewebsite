@@ -1,80 +1,107 @@
 import React, { useEffect } from 'react';
-import { QrCode, Utensils } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { QrCode, Utensils, Coffee, BookOpen, Smartphone, CreditCard, ArrowLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Check if there's a table parameter in the URL
   useEffect(() => {
     const tableNumber = searchParams.get('table');
     if (tableNumber) {
-      // Redirect to the TableMenu route with the table number
       navigate(`/table/${tableNumber}/menu`, { replace: true });
     }
   }, [searchParams, navigate]);
 
+  const steps = [
+    { icon: QrCode, title: 'Scan QR Code', desc: 'Find the QR code on your table' },
+    { icon: Smartphone, title: 'Enter Details', desc: 'Your name & phone number' },
+    { icon: BookOpen, title: 'Browse Menu', desc: 'Explore our delicious offerings' },
+    { icon: Coffee, title: 'Place Order', desc: 'Add items to your order' },
+    { icon: CreditCard, title: 'Pay Later', desc: 'Pay at counter after your meal' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#faf8f5] via-[#f5ede3] to-[#ede4d9] flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center">
-        {/* Icon */}
-        <div className="w-32 h-32 bg-gradient-to-br from-[#8b6347] to-[#6b4423] rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
-          <QrCode className="w-16 h-16 text-white" />
-        </div>
-
-        {/* Title */}
-        <h1 className="text-3xl font-bold text-[#5d3a1a] mb-4">
-          Scan QR Code to View Menu
-        </h1>
-
-        {/* Description */}
-        <p className="text-[#6b5744] mb-8 leading-relaxed">
-          Please scan the QR code placed on your table to access our menu and place orders.
-          This ensures we serve you at the right table!
-        </p>
-
-        {/* Info Box */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-[#e8dfd3]">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Utensils className="w-6 h-6 text-[#8b6347]" />
-            <span className="font-semibold text-[#5d3a1a]">How it works</span>
+    <div className="min-h-screen bg-gradient-to-br from-[#FDF8F3] via-[#F5EBE0] to-[#EDE0D4] py-20 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <div className="w-24 h-24 bg-gradient-to-br from-[#8B5E3C] to-[#6B4423] rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+            <QrCode className="w-12 h-12 text-white" />
           </div>
-          <ol className="text-left text-[#6b5744] space-y-3">
-            <li className="flex items-start gap-3">
-              <span className="w-6 h-6 bg-[#f5ede3] text-[#8b6347] rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-sm">1</span>
-              <span>Find the QR code on your table</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="w-6 h-6 bg-[#f5ede3] text-[#8b6347] rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-sm">2</span>
-              <span>Scan it with your phone camera</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="w-6 h-6 bg-[#f5ede3] text-[#8b6347] rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-sm">3</span>
-              <span>Enter your name & phone number</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="w-6 h-6 bg-[#f5ede3] text-[#8b6347] rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-sm">4</span>
-              <span>Browse menu & place your order</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="w-6 h-6 bg-[#f5ede3] text-[#8b6347] rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-sm">5</span>
-              <span>Pay at the counter after your meal</span>
-            </li>
-          </ol>
-        </div>
+          <h1 className="text-4xl font-bold text-[#2C1810] mb-4">
+            Scan to Order
+          </h1>
+          <p className="text-lg text-[#5D4E37] max-w-md mx-auto">
+            Use the QR code at your table to access our menu and place your order seamlessly
+          </p>
+        </motion.div>
+
+        {/* Steps Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-[#E8DFD3]"
+        >
+          <div className="flex items-center gap-3 mb-8">
+            <Utensils className="w-6 h-6 text-[#8B5E3C]" />
+            <span className="text-xl font-bold text-[#2C1810]">How It Works</span>
+          </div>
+
+          <div className="space-y-6">
+            {steps.map((step, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + idx * 0.1 }}
+                className="flex items-start gap-4 group"
+              >
+                <div className="relative">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#8B5E3C]/10 to-[#D4A574]/10 group-hover:from-[#8B5E3C] group-hover:to-[#D4A574] rounded-xl flex items-center justify-center transition-all">
+                    <step.icon className="w-5 h-5 text-[#8B5E3C] group-hover:text-white transition-colors" />
+                  </div>
+                  {idx < steps.length - 1 && (
+                    <div className="absolute left-1/2 top-12 w-0.5 h-6 bg-gradient-to-b from-[#8B5E3C]/30 to-transparent -translate-x-1/2" />
+                  )}
+                </div>
+                <div className="flex-1 pt-2">
+                  <h3 className="font-bold text-[#2C1810] mb-1">{step.title}</h3>
+                  <p className="text-[#5D4E37] text-sm">{step.desc}</p>
+                </div>
+                <span className="w-8 h-8 bg-[#F5EBE0] text-[#8B5E3C] rounded-full flex items-center justify-center font-bold text-sm">
+                  {idx + 1}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
 
         {/* Back Button */}
-        <button
-          onClick={() => navigate('/')}
-          className="px-6 py-3 bg-[#6b4423] text-white rounded-full hover:bg-[#5d3a1a] transition-colors font-medium shadow-lg hover:scale-105 transition-all duration-300"
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="text-center"
         >
-          Back to Home
-        </button>
+          <button
+            onClick={() => navigate('/')}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#8B5E3C] to-[#6B4423] text-white rounded-full font-semibold shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
+          >
+            <ArrowLeft size={20} />
+            Back to Home
+          </button>
+        </motion.div>
       </div>
     </div>
   );
 };
 
 export default Menu;
-

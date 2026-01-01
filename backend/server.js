@@ -51,8 +51,8 @@ const corsOptions = {
       "http://localhost:5173",
       "http://127.0.0.1:3000",
       "http://127.0.0.1:5173",
-      "http://192.168.0.107:5173",
-      "http://192.168.0.107:3000",
+      "http://192.168.0.104:5173",
+      "http://192.168.0.104:3000",
     ].filter(Boolean);
 
     // Allow requests with no origin (mobile apps, curl, Postman)
@@ -159,8 +159,8 @@ const server = app.listen(PORT, "0.0.0.0", () => {
   console.log("========================================");
   console.log(`📍 Environment: ${NODE_ENV}`);
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🔗 API URL: http://192.168.0.107:${PORT}/api`);
-  console.log(`💚 Health Check: http://192.168.0.107:${PORT}/api/health`);
+  // console.log(`🔗 API URL: http://192.168.0.104:${PORT}/api`);
+  // console.log(`💚 Health Check: http://192.168.0.104:${PORT}/api/health`);
   console.log("========================================\n");
 });
 

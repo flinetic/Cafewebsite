@@ -575,7 +575,7 @@ const Settings: React.FC = () => {
                                 value={menuBaseUrl}
                                 onChange={(e) => setMenuBaseUrl(e.target.value)}
                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent font-mono text-sm"
-                                placeholder="http://192.168.0.107:5173"
+                                placeholder="http://192.168.0.104:5173"
                             />
                             <p className="text-xs text-gray-500 mt-1">
                                 This URL is used for QR code generation. Update this to your network IP for mobile access.
