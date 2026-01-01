@@ -16,7 +16,7 @@ import {
   // Mail,
   // Send
 } from 'lucide-react';
-import { orderApi, authApi } from '../../services/api'; // ADD authApi WHEN DOMAIN PURCHASE FOR EMAIL VERIFICATION
+import { orderApi } from '../../services/api'; // ADD authApi WHEN DOMAIN PURCHASE FOR EMAIL VERIFICATION
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import type { AxiosError } from 'axios';
