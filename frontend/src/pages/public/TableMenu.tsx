@@ -53,9 +53,12 @@ interface Offer {
   discountType: 'percentage' | 'flat' | 'bogo';
   discountValue: number;
   minimumOrder: number;
+  maxDiscount: number | null;
   code: string | null;
   validFrom: string;
   validTo: string;
+  applicableCategories: string[];
+  applicableItems: string[];
 }
 
 const CATEGORIES = [
@@ -111,6 +114,7 @@ const TableMenu: React.FC = () => {
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [tableValid, setTableValid] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
 
   const [regName, setRegName] = useState(customerInfo?.name || '');
   const [regPhone, setRegPhone] = useState(customerInfo?.phone || '');
@@ -194,6 +198,56 @@ const TableMenu: React.FC = () => {
     toast.success(`${item.name} added to cart`);
   };
 
+  // Check if order is eligible for a specific offer
+  const isOrderEligibleForOffer = (offer: Offer): boolean => {
+    const subtotal = getTotalAmount();
+
+    // Check minimum order requirement
+    if (subtotal < offer.minimumOrder) {
+      return false;
+    }
+
+    // Check if offer has category restrictions
+    if (offer.applicableCategories && offer.applicableCategories.length > 0) {
+      const hasEligibleCategory = cartItems.some(item =>
+        offer.applicableCategories.includes(item.category)
+      );
+      if (!hasEligibleCategory) return false;
+    }
+
+    // Check if offer has item restrictions
+    if (offer.applicableItems && offer.applicableItems.length > 0) {
+      const hasEligibleItem = cartItems.some(item =>
+        offer.applicableItems.includes(item.menuItemId)
+      );
+      if (!hasEligibleItem) return false;
+    }
+
+    return true;
+  };
+
+  // Calculate discount for selected offer
+  const calculateDiscount = (): number => {
+    if (!selectedOffer) return 0;
+
+    const subtotal = getTotalAmount();
+    let discount = 0;
+
+    if (selectedOffer.discountType === 'percentage') {
+      discount = (subtotal * selectedOffer.discountValue) / 100;
+      if (selectedOffer.maxDiscount && discount > selectedOffer.maxDiscount) {
+        discount = selectedOffer.maxDiscount;
+      }
+    } else if (selectedOffer.discountType === 'flat') {
+      discount = selectedOffer.discountValue;
+    }
+
+    return Math.min(discount, subtotal); // Can't discount more than subtotal
+  };
+
+  const discountAmount = calculateDiscount();
+  const finalAmount = getTotalAmount() - discountAmount;
+
   const handlePlaceOrder = async () => {
     if (!customerInfo) {
       toast.error('Please register first');
@@ -218,11 +272,13 @@ const TableMenu: React.FC = () => {
           price: item.price,
           quantity: item.quantity,
           specialInstructions: item.specialInstructions
-        }))
+        })),
+        appliedOfferId: selectedOffer?.id
       };
 
       await orderApi.createOrder(orderData);
       clearCart();
+      setSelectedOffer(null);
       setShowCart(false);
       setShowOrderConfirm(true);
       toast.success('Order placed successfully!');
@@ -233,6 +289,7 @@ const TableMenu: React.FC = () => {
       setIsPlacingOrder(false);
     }
   };
+
 
   const allItems = Object.values(menuItems).flat();
   const availableCategories = Object.keys(menuItems);
@@ -747,10 +804,65 @@ const TableMenu: React.FC = () => {
             </div>
 
             <div className="border-t border-gray-200 p-4 space-y-4 bg-gray-50">
-              <div className="flex justify-between items-center text-lg">
-                <span className="font-medium text-gray-700">Total</span>
-                <span className="font-bold text-amber-600 text-xl">₹{getTotalAmount()}</span>
+              {/* Coupon/Offer Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                  <Tag size={16} className="text-amber-600" />
+                  Apply Offer
+                </label>
+                {offers.length === 0 ? (
+                  <p className="text-gray-500 text-sm italic py-2">No coupons available</p>
+                ) : (
+                  <select
+                    value={selectedOffer?.id || ''}
+                    onChange={(e) => {
+                      const offer = offers.find(o => o.id === e.target.value);
+                      setSelectedOffer(offer || null);
+                    }}
+                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none bg-white"
+                  >
+                    <option value="">No coupon</option>
+                    {offers.map(offer => {
+                      const eligible = isOrderEligibleForOffer(offer);
+                      return (
+                        <option
+                          key={offer.id}
+                          value={offer.id}
+                          disabled={!eligible}
+                          className={!eligible ? 'text-gray-400' : ''}
+                        >
+                          {offer.title} - {offer.discountType === 'percentage'
+                            ? `${offer.discountValue}% off`
+                            : `₹${offer.discountValue} off`}
+                          {!eligible && ` (Min ₹${offer.minimumOrder})`}
+                        </option>
+                      );
+                    })}
+                  </select>
+                )}
               </div>
+
+              {/* Price Summary */}
+              <div className="space-y-2 pt-2 border-t border-gray-200">
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span>₹{getTotalAmount()}</span>
+                </div>
+                {selectedOffer && discountAmount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span className="flex items-center gap-1">
+                      <Tag size={14} />
+                      Discount ({selectedOffer.code || selectedOffer.title})
+                    </span>
+                    <span>-₹{discountAmount.toFixed(0)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-lg pt-2 border-t border-gray-200">
+                  <span className="font-medium text-gray-700">Total</span>
+                  <span className="font-bold text-amber-600 text-xl">₹{finalAmount.toFixed(0)}</span>
+                </div>
+              </div>
+
               <button
                 onClick={handlePlaceOrder}
                 disabled={isPlacingOrder}

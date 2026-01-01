@@ -52,10 +52,29 @@ const orderSchema = new mongoose.Schema({
     trim: true
   },
   items: [orderItemSchema],
+  subtotalAmount: {
+    type: Number,
+    required: true,
+    min: 0
+  },
   totalAmount: {
     type: Number,
     required: true,
     min: 0
+  },
+  // Offer/Coupon fields
+  appliedOfferId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Offer',
+    default: null
+  },
+  appliedOfferCode: {
+    type: String,
+    default: null
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
   },
   status: {
     type: String,

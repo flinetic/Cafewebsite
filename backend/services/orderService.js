@@ -1,11 +1,12 @@
 const Order = require('../models/Order');
 const Table = require('../models/Table');
+const Offer = require('../models/Offer');
 
 /**
  * Create a new order
  */
 const createOrder = async (orderData) => {
-  const { tableNumber, customerName, customerPhone, items, notes } = orderData;
+  const { tableNumber, customerName, customerPhone, items, notes, appliedOfferId } = orderData;
 
   // Verify table exists and is active
   const table = await Table.findOne({ tableNumber, isActive: true });
@@ -13,8 +14,43 @@ const createOrder = async (orderData) => {
     throw new Error('Invalid or inactive table');
   }
 
-  // Calculate total amount
-  const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  // Calculate subtotal amount
+  const subtotalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  // Calculate discount if offer applied
+  let discountAmount = 0;
+  let appliedOffer = null;
+  let appliedOfferCode = null;
+
+  if (appliedOfferId) {
+    appliedOffer = await Offer.findById(appliedOfferId);
+
+    if (appliedOffer && appliedOffer.isValid) {
+      // Validate minimum order
+      if (subtotalAmount >= appliedOffer.minimumOrder) {
+        // Calculate discount based on type
+        if (appliedOffer.discountType === 'percentage') {
+          discountAmount = (subtotalAmount * appliedOffer.discountValue) / 100;
+          if (appliedOffer.maxDiscount && discountAmount > appliedOffer.maxDiscount) {
+            discountAmount = appliedOffer.maxDiscount;
+          }
+        } else if (appliedOffer.discountType === 'flat') {
+          discountAmount = appliedOffer.discountValue;
+        }
+
+        // Ensure discount doesn't exceed subtotal
+        discountAmount = Math.min(discountAmount, subtotalAmount);
+
+        appliedOfferCode = appliedOffer.code || appliedOffer.title;
+
+        // Increment usage count
+        appliedOffer.usedCount += 1;
+        await appliedOffer.save();
+      }
+    }
+  }
+
+  const totalAmount = Math.max(0, subtotalAmount - discountAmount);
 
   // Generate order number and token
   const { orderNumber, token } = await Order.generateOrderNumber();
@@ -26,7 +62,11 @@ const createOrder = async (orderData) => {
     customerName,
     customerPhone,
     items,
+    subtotalAmount,
+    discountAmount,
     totalAmount,
+    appliedOfferId: appliedOffer?._id || null,
+    appliedOfferCode,
     notes,
     status: 'pending'
   });
@@ -34,6 +74,7 @@ const createOrder = async (orderData) => {
   await order.save();
   return order;
 };
+
 
 /**
  * Get all orders with optional filters

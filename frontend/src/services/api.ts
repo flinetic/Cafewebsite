@@ -299,6 +299,7 @@ export interface CreateOrderData {
   customerPhone: string;
   items: OrderItemData[];
   notes?: string;
+  appliedOfferId?: string;
 }
 
 export const orderApi = {
