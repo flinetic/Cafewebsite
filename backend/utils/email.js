@@ -1,14 +1,23 @@
 /**
  * Email Utility
  * Handles all email sending functionality
+ * Supports both Resend (for cloud/production) and Gmail SMTP (for local development)
  * @module utils/email
  */
 
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
-// Create reusable transporter
-const createTransporter = () => {
+// Try to load Resend - it may not be installed in all environments
+let Resend;
+try {
+  Resend = require("resend").Resend;
+} catch (e) {
+  console.log("Resend package not installed, using SMTP only");
+}
+
+// Create Gmail SMTP transporter (for local development)
+const createSMTPTransporter = () => {
   return nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -19,7 +28,7 @@ const createTransporter = () => {
 };
 
 /**
- * Send email
+ * Send email using Resend (cloud-friendly) or Gmail SMTP (local)
  * @param {Object} options - Email options
  * @param {string} options.to - Recipient email
  * @param {string} options.subject - Email subject
@@ -27,8 +36,34 @@ const createTransporter = () => {
  * @param {string} options.text - Plain text content (optional)
  */
 const sendEmail = async ({ to, subject, html, text }) => {
+  // Use Resend if API key is available (recommended for production/cloud)
+  if (process.env.RESEND_API_KEY && Resend) {
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const { data, error } = await resend.emails.send({
+        from: process.env.EMAIL_FROM || "BookAVibe <onboarding@resend.dev>",
+        to: [to],
+        subject,
+        html,
+        text: text || html.replace(/<[^>]*>/g, ""),
+      });
+
+      if (error) {
+        console.error("Resend error:", error);
+        throw new Error(error.message);
+      }
+
+      console.log("Email sent via Resend:", data?.id);
+      return data;
+    } catch (error) {
+      console.error("Resend email sending failed:", error);
+      throw error;
+    }
+  }
+
+  // Fallback to Gmail SMTP (for local development)
   try {
-    const transporter = createTransporter();
+    const transporter = createSMTPTransporter();
 
     const mailOptions = {
       from: `"BookAVibe Cafe" <${process.env.SMTP_EMAIL}>`,
@@ -39,13 +74,14 @@ const sendEmail = async ({ to, subject, html, text }) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.messageId);
+    console.log("Email sent via SMTP:", info.messageId);
     return info;
   } catch (error) {
-    console.error("Email sending failed:", error);
+    console.error("SMTP email sending failed:", error);
     throw error;
   }
 };
+
 
 /**
  * Email templates
