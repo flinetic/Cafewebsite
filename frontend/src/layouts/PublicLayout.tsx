@@ -12,8 +12,8 @@ const PublicLayout: React.FC = () => {
   // Check if on a page with hero background image
   const hasHeroBackground = location.pathname === '/' || location.pathname === '/about';
 
-  // Navbar should be transparent only on pages with hero background when not scrolled
-  const isTransparent = hasHeroBackground && !scrolled;
+  // Navbar should be transparent only on pages with hero background when not scrolled and menu is closed
+  const isTransparent = hasHeroBackground && !scrolled && !menuOpen;
 
   // Scroll to top on route change
   useEffect(() => {
