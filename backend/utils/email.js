@@ -1,25 +1,22 @@
 /**
  * Email Utility
  * Handles all email sending functionality
- * Uses Gmail SMTP via Nodemailer
+ * Supports both Resend (for cloud/production) and Gmail SMTP (for local development)
  * @module utils/email
  */
 
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
-// RESEND CODE COMMENTED OUT - Domain verification required for production
-// Uncomment if you have a verified domain in Resend
-/*
+// Try to load Resend - it may not be installed in all environments
 let Resend;
 try {
   Resend = require("resend").Resend;
 } catch (e) {
   console.log("Resend package not installed, using SMTP only");
 }
-*/
 
-// Create Gmail SMTP transporter
+// Create Gmail SMTP transporter (for local development)
 const createSMTPTransporter = () => {
   return nodemailer.createTransport({
     service: "gmail",
@@ -31,7 +28,7 @@ const createSMTPTransporter = () => {
 };
 
 /**
- * Send email using Gmail SMTP (Nodemailer)
+ * Send email using Resend (cloud-friendly) or Gmail SMTP (local)
  * @param {Object} options - Email options
  * @param {string} options.to - Recipient email
  * @param {string} options.subject - Email subject
@@ -39,8 +36,7 @@ const createSMTPTransporter = () => {
  * @param {string} options.text - Plain text content (optional)
  */
 const sendEmail = async ({ to, subject, html, text }) => {
-  // RESEND CODE COMMENTED OUT - Uncomment if using Resend with verified domain
-  /*
+  // Use Resend if API key is available (recommended for production/cloud)
   if (process.env.RESEND_API_KEY && Resend) {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
@@ -64,13 +60,9 @@ const sendEmail = async ({ to, subject, html, text }) => {
       throw error;
     }
   }
-  */
 
-  // Use Gmail SMTP (Nodemailer)
+  // Fallback to Gmail SMTP (for local development)
   try {
-    console.log("Sending email via SMTP to:", to);
-    console.log("SMTP Email configured:", process.env.SMTP_EMAIL ? "Yes" : "No");
-
     const transporter = createSMTPTransporter();
 
     const mailOptions = {
@@ -82,10 +74,10 @@ const sendEmail = async ({ to, subject, html, text }) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully via SMTP:", info.messageId);
+    console.log("Email sent via SMTP:", info.messageId);
     return info;
   } catch (error) {
-    console.error("SMTP email sending failed:", error.message);
+    console.error("SMTP email sending failed:", error);
     throw error;
   }
 };

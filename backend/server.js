@@ -53,7 +53,6 @@ const corsOptions = {
       "http://127.0.0.1:5173",
       "http://192.168.0.104:5173",
       "http://192.168.0.104:3000",
-      "https://cafewebsite-cyan.vercel.app",
     ].filter(Boolean);
 
     // Allow requests with no origin (mobile apps, curl, Postman)
