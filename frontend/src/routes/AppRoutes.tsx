@@ -11,7 +11,7 @@ import LoginPage from '../pages/Auth/LoginPage';
 import RegisterPage from '../pages/Auth/RegisterPage';
 import ForgotPasswordPage from '../pages/Auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/Auth/ResetPasswordPage';
-import EmailVerifiedPage from '../pages/Auth/EmailVerifiedPage';
+// import EmailVerifiedPage from '../pages/Auth/EmailVerifiedPage';
 
 // Public Pages
 import Home from '../pages/public/Home';
@@ -92,7 +92,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/register" element={user ? <Navigate to={getDefaultRoute()} replace /> : <RegisterPage />} />
       <Route path="/forgot-password" element={user ? <Navigate to={getDefaultRoute()} replace /> : <ForgotPasswordPage />} />
       <Route path="/reset-password/:token" element={user ? <Navigate to={getDefaultRoute()} replace /> : <ResetPasswordPage />} />
-      <Route path="/email-verified" element={<EmailVerifiedPage />} />
+      {/* <Route path="/email-verified" element={<EmailVerifiedPage />} /> */}
 
       {/* Admin Routes with AdminLayout */}
       <Route
