@@ -14,7 +14,10 @@ import {
     Shield,
     ChefHat,
     Camera,
-    User
+    User,
+    Mail,
+    Phone as PhoneIcon,
+    Edit3
 } from 'lucide-react';
 import { configApi, staffApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -53,9 +56,16 @@ const Settings: React.FC = () => {
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [savingProfile, setSavingProfile] = useState(false);
     const [fetchingLocation, setFetchingLocation] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadingLogo, setUploadingLogo] = useState(false);
+
+    // Personal profile state
+    const [profileFirstName, setProfileFirstName] = useState(user?.firstName || '');
+    const [profileLastName, setProfileLastName] = useState(user?.lastName || '');
+    const [profilePhone, setProfilePhone] = useState(user?.phone || '');
+    const [editingProfile, setEditingProfile] = useState(false);
 
     // Form state
     const [cafeName, setCafeName] = useState('');
@@ -237,6 +247,39 @@ const Settings: React.FC = () => {
         }
     };
 
+    const handleSavePersonalProfile = async () => {
+        if (!profileFirstName.trim() || !profileLastName.trim()) {
+            toast.error('First name and last name are required');
+            return;
+        }
+
+        setSavingProfile(true);
+        try {
+            const response = await staffApi.updateProfile({
+                firstName: profileFirstName.trim(),
+                lastName: profileLastName.trim(),
+                phone: profilePhone.trim()
+            });
+
+            // Update user context
+            if (user && response.data.data.staff) {
+                updateUser({
+                    ...user,
+                    firstName: response.data.data.staff.firstName,
+                    lastName: response.data.data.staff.lastName,
+                    phone: response.data.data.staff.phone
+                });
+            }
+
+            setEditingProfile(false);
+            toast.success('Profile updated successfully!');
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setSavingProfile(false);
+        }
+    };
+
     const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -385,17 +428,118 @@ const Settings: React.FC = () => {
 
                 {/* Profile Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                    <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <User size={20} className="text-primary-600" />
-                        Your Profile
-                    </h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <User size={20} className="text-primary-600" />
+                            Your Profile
+                        </h2>
+                        {!editingProfile && (
+                            <button
+                                onClick={() => setEditingProfile(true)}
+                                className="px-3 py-1.5 text-sm text-caramel hover:bg-mocha/20 rounded-lg transition-colors flex items-center gap-1"
+                            >
+                                <Edit3 size={14} />
+                                Edit
+                            </button>
+                        )}
+                    </div>
 
                     <ProfileAvatar />
 
-                    <p className="text-sm text-gray-500 mt-4">
-                        <Camera size={14} className="inline mr-1" />
-                        Click the camera icon to upload a new profile picture
-                    </p>
+                    {editingProfile ? (
+                        <div className="mt-6 space-y-4 border-t border-gray-100 pt-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        First Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={profileFirstName}
+                                        onChange={(e) => setProfileFirstName(e.target.value)}
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
+                                        placeholder="First name"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Last Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={profileLastName}
+                                        onChange={(e) => setProfileLastName(e.target.value)}
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
+                                        placeholder="Last name"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <PhoneIcon size={14} className="inline mr-1" />
+                                    Phone Number
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={profilePhone}
+                                    onChange={(e) => setProfilePhone(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
+                                    placeholder="Phone number"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <Mail size={14} className="inline mr-1" />
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={user?.email || ''}
+                                    disabled
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={handleSavePersonalProfile}
+                                    disabled={savingProfile}
+                                    className="px-6 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors flex items-center gap-2 disabled:opacity-50"
+                                >
+                                    {savingProfile ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                                    Save Changes
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setEditingProfile(false);
+                                        setProfileFirstName(user?.firstName || '');
+                                        setProfileLastName(user?.lastName || '');
+                                        setProfilePhone(user?.phone || '');
+                                    }}
+                                    className="px-6 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="mt-4 space-y-2 text-sm text-gray-600">
+                            {user?.phone && (
+                                <p className="flex items-center gap-2">
+                                    <PhoneIcon size={14} className="text-gray-400" />
+                                    {user.phone}
+                                </p>
+                            )}
+                            <p className="flex items-center gap-2">
+                                <Mail size={14} className="text-gray-400" />
+                                {user?.email}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-4">
+                                <Camera size={12} className="inline mr-1" />
+                                Click the camera icon on your avatar to upload a new profile picture
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -417,11 +561,119 @@ const Settings: React.FC = () => {
 
             {/* Profile Avatar for Admin */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <User size={20} className="text-primary-600" />
+                        Your Profile
+                    </h2>
+                    {!editingProfile && (
+                        <button
+                            onClick={() => setEditingProfile(true)}
+                            className="px-3 py-1.5 text-sm text-caramel hover:bg-mocha/20 rounded-lg transition-colors flex items-center gap-1"
+                        >
+                            <Edit3 size={14} />
+                            Edit Profile
+                        </button>
+                    )}
+                </div>
                 <ProfileAvatar />
-                <p className="text-sm text-gray-500">
-                    <Camera size={14} className="inline mr-1" />
-                    Click the camera icon to upload a new profile picture
-                </p>
+
+                {editingProfile ? (
+                    <div className="mt-6 space-y-4 border-t border-gray-100 pt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    First Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={profileFirstName}
+                                    onChange={(e) => setProfileFirstName(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
+                                    placeholder="First name"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Last Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={profileLastName}
+                                    onChange={(e) => setProfileLastName(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
+                                    placeholder="Last name"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <PhoneIcon size={14} className="inline mr-1" />
+                                    Phone Number
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={profilePhone}
+                                    onChange={(e) => setProfilePhone(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-caramel focus:border-transparent"
+                                    placeholder="Phone number"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <Mail size={14} className="inline mr-1" />
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={user?.email || ''}
+                                    disabled
+                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={handleSavePersonalProfile}
+                                disabled={savingProfile}
+                                className="px-6 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors flex items-center gap-2 disabled:opacity-50"
+                            >
+                                {savingProfile ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                                Save Changes
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setEditingProfile(false);
+                                    setProfileFirstName(user?.firstName || '');
+                                    setProfileLastName(user?.lastName || '');
+                                    setProfilePhone(user?.phone || '');
+                                }}
+                                className="px-6 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="mt-4 space-y-2 text-sm text-gray-600">
+                        {user?.phone && (
+                            <p className="flex items-center gap-2">
+                                <PhoneIcon size={14} className="text-gray-400" />
+                                {user.phone}
+                            </p>
+                        )}
+                        <p className="flex items-center gap-2">
+                            <Mail size={14} className="text-gray-400" />
+                            {user?.email}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-4">
+                            <Camera size={12} className="inline mr-1" />
+                            Click the camera icon on your avatar to upload a new profile picture
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Tabs */}
