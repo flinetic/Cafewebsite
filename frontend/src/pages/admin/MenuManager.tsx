@@ -370,22 +370,22 @@ const MenuManager: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Menu Manager</h1>
           <p className="text-gray-600 mt-1">Manage your restaurant menu items</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <button
             onClick={() => setShowBulkImportModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-caramel border-2 border-caramel rounded-lg hover:bg-caramel/10 transition-colors shadow-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-white text-caramel border-2 border-caramel rounded-lg hover:bg-caramel/10 transition-colors shadow-sm"
           >
             <FileJson size={20} />
             Bulk Import
           </button>
           <button
             onClick={openCreateModal}
-            className="flex items-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors shadow-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-caramel text-white rounded-lg hover:bg-mocha transition-colors shadow-sm"
           >
             <Plus size={20} />
             Add Item

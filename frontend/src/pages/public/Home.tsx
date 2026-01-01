@@ -227,7 +227,7 @@ const Home: React.FC = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={showHero ? { opacity: 1, y: 0 } : {}}
                         transition={{ duration: 0.6, delay: 0.7 }}
-                        className="flex flex-wrap justify-center gap-4"
+                        className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto px-4 sm:px-0"
                     >
                         <Link
                             to="/menu"

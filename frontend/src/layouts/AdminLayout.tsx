@@ -22,6 +22,7 @@ const AdminLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const [cafeConfig, setCafeConfig] = useState<{ logoUrl?: string; cafeName?: string }>({});
@@ -87,16 +88,27 @@ const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-latte">
+    <div className="flex h-screen bg-latte relative">
+      {/* Mobile Overlay */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/50 transition-opacity md:hidden ${mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
       {/* Sidebar */}
       <aside
-        className={`${sidebarOpen ? 'w-64' : 'w-20'
-          } bg-gradient-to-b from-caramel to-primary-700 text-white transition-all duration-300 flex flex-col`}
+        className={`fixed md:relative z-50 h-full transition-all duration-300 flex flex-col
+          bg-gradient-to-b from-caramel to-primary-700 text-white
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
+          w-64 md:${sidebarOpen ? 'w-64' : 'w-20'}
+        `}
       >
         {/* Logo/Brand */}
         <div className="p-4 flex items-center justify-between border-b border-caramel/30">
-          {sidebarOpen ? (
-            <div className="flex items-center gap-3">
+          {/* Show logo if sidebar is open OR if on mobile (since mobile sidebar is always full width) */}
+          {(sidebarOpen || mobileMenuOpen) ? (
+            <div className={`flex items-center gap-3 md:${!sidebarOpen && 'hidden'}`}>
               {cafeConfig.logoUrl && !cafeConfig.logoUrl.includes('/assets/') ? (
                 <img
                   src={cafeConfig.logoUrl}
@@ -124,10 +136,21 @@ const AdminLayout: React.FC = () => {
             )
           )}
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
+            onClick={() => {
+              // Simple check for mobile/desktop behavior
+              if (window.innerWidth < 768) {
+                setMobileMenuOpen(false);
+              } else {
+                setSidebarOpen(!sidebarOpen);
+              }
+            }}
             className="p-2 hover:bg-caramel/30 rounded-lg transition-colors"
           >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            {/* On mobile, always show X to close. On desktop, toggle between X and Menu */}
+            <span className="md:hidden"><X size={20} /></span>
+            <span className="hidden md:block">
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </span>
           </button>
         </div>
 
@@ -137,15 +160,16 @@ const AdminLayout: React.FC = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={() => setMobileMenuOpen(false)} // Close sidebar on mobile when link is clicked
               className={({ isActive }) =>
                 `flex items-center gap-3 p-3 rounded-lg transition-colors ${isActive
                   ? 'bg-caramel text-white'
                   : 'hover:bg-caramel/30'
-                } ${!sidebarOpen && 'justify-center'}`
+                } ${!sidebarOpen && 'md:justify-center'}` // Only justify-center on desktop when collapsed
               }
             >
-              <item.icon size={20} />
-              {sidebarOpen && <span>{item.label}</span>}
+              <item.icon size={20} className="min-w-[20px]" /> {/* Prevent icon shrinking */}
+              <span className={`md:${!sidebarOpen && 'hidden'}`}>{item.label}</span> {/* Hide label on desktop collapse, show on mobile */}
             </NavLink>
           ))}
         </nav>
@@ -164,9 +188,17 @@ const AdminLayout: React.FC = () => {
       <main className="flex-1 overflow-auto">
         {/* Header */}
         <header className="bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-30">
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {isAdmin ? 'Admin Panel' : 'Kitchen Panel'}
-          </h2>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+            >
+              <Menu size={24} />
+            </button>
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {isAdmin ? 'Admin Panel' : 'Kitchen Panel'}
+            </h2>
+          </div>
 
           {/* Profile Dropdown */}
           <div className="relative" ref={profileRef}>
