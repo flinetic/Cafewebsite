@@ -101,7 +101,7 @@ const Home: React.FC = () => {
                 return;
             }
 
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
+            await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors', // Important for Google Apps Script
                 headers: {
