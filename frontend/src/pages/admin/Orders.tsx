@@ -14,7 +14,7 @@ import {
   ChefHat,
   Play,
   Mail,
-  Send
+  // Send
 } from 'lucide-react';
 import { orderApi, authApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -66,9 +66,9 @@ type TabType = 'pending' | 'completed' | 'history';
 const REFRESH_INTERVAL = 30000;
 
 const Orders: React.FC = () => {
-  const { user, refreshUser } = useAuth();
+  const { user } = useAuth(); // ADD refreshUser WHEN DOMAIN PURCHASE FOR EMAIL VERIFICATION
   const isKitchen = user?.role === 'kitchen';
-  const isEmailVerified = user?.isEmailVerified ?? false;
+  // const isEmailVerified = user?.isEmailVerified ?? false;
 
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
@@ -79,32 +79,32 @@ const Orders: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [historyDate, setHistoryDate] = useState(new Date().toISOString().split('T')[0]);
   const [historyTotal, setHistoryTotal] = useState(0);
-  const [resendingEmail, setResendingEmail] = useState(false);
+  // const [resendingEmail, setResendingEmail] = useState(false);
 
   // Refresh user data when window gains focus (after email verification)
-  useEffect(() => {
-    const handleFocus = () => {
-      if (user && !user.isEmailVerified) {
-        refreshUser();
-      }
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [user, refreshUser]);
+  // useEffect(() => {
+  //   const handleFocus = () => {
+  //     if (user && !user.isEmailVerified) {
+  //       refreshUser();
+  //     }
+  //   };
+  //   window.addEventListener('focus', handleFocus);
+  //   return () => window.removeEventListener('focus', handleFocus);
+  // }, [user, refreshUser]);
 
-  const handleResendVerification = async () => {
-    if (!user?.email) return;
-    setResendingEmail(true);
-    try {
-      await authApi.resendVerification(user.email);
-      toast.success('Verification email sent! Check your inbox.');
-    } catch (error) {
-      const axiosError = error as AxiosError<ErrorResponse>;
-      toast.error(axiosError.response?.data?.message || 'Failed to send verification email');
-    } finally {
-      setResendingEmail(false);
-    }
-  };
+  // const handleResendVerification = async () => {
+  //   if (!user?.email) return;
+  //   setResendingEmail(true);
+  //   try {
+  //     await authApi.resendVerification(user.email);
+  //     toast.success('Verification email sent! Check your inbox.');
+  //   } catch (error) {
+  //     const axiosError = error as AxiosError<ErrorResponse>;
+  //     toast.error(axiosError.response?.data?.message || 'Failed to send verification email');
+  //   } finally {
+  //     setResendingEmail(false);
+  //   }
+  // };
 
   const fetchPendingOrders = useCallback(async () => {
     try {
@@ -406,7 +406,7 @@ const Orders: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Email Verification Banner */}
-      {!isEmailVerified && (
+      {/* {!isEmailVerified && (
         <div className="bg-mocha/20 border border-mocha rounded-xl p-4">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 bg-mocha/30 rounded-full flex items-center justify-center flex-shrink-0">
@@ -440,7 +440,7 @@ const Orders: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Header */}
       <div className="flex justify-between items-center">
