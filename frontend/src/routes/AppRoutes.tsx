@@ -16,7 +16,7 @@ import ResetPasswordPage from '../pages/Auth/ResetPasswordPage';
 // Public Pages
 import Home from '../pages/public/Home';
 import Menu from '../pages/public/Menu';
-import About from '../pages/public/About';
+
 import TableMenu from '../pages/public/TableMenu';
 
 // Admin Pages
@@ -84,7 +84,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<Home />} />
         <Route path="menu" element={<Menu />} />
-        <Route path="about" element={<About />} />
+
       </Route>
 
       {/* Auth Routes (No Layout) */}

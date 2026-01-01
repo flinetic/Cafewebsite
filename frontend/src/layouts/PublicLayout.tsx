@@ -17,8 +17,22 @@ const PublicLayout: React.FC = () => {
 
   // Scroll to top on route change
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!location.hash) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [location.pathname]);
+
+  // Handle hash scrolling
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        const elem = document.getElementById(location.hash.substring(1));
+        if (elem) {
+          elem.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100); // Small delay to ensure content is rendered
+    }
+  }, [location.hash, location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -30,8 +44,10 @@ const PublicLayout: React.FC = () => {
 
   const navLinks = [
     { path: '/', label: 'Home' },
-    { path: '/about', label: 'About' },
+    { path: '/#about', label: 'About' },
     { path: '/menu', label: 'Menu' },
+    { path: '/#gallery', label: 'Gallery' },
+    { path: '/#contact', label: 'Contact' },
   ];
 
   return (
@@ -95,7 +111,10 @@ const PublicLayout: React.FC = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 text-[#8B5E3C] hover:bg-[#F5EBE0] rounded-xl transition-colors"
+              className={`md:hidden p-2 rounded-xl transition-colors ${isTransparent
+                ? 'text-white hover:bg-white/10'
+                : 'text-[#8B5E3C] hover:bg-[#F5EBE0]'
+                }`}
             >
               {menuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -177,9 +196,9 @@ const PublicLayout: React.FC = () => {
             <div>
               <h3 className="text-lg font-bold text-[#D4A574] mb-6">Explore</h3>
               <ul className="space-y-3">
-                {['Home', 'About Us', 'Menu', 'Gallery'].map((item) => (
+                {['Home', 'About Us', 'Menu', 'Gallery', 'Contact'].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-[#A89378] hover:text-[#D4A574] transition-colors flex items-center gap-2 group">
+                    <a href={item === 'Contact' ? '#contact' : item === 'Gallery' ? '#gallery' : item === 'Menu' ? '/menu' : item === 'About Us' ? '#about' : '/'} className="text-[#A89378] hover:text-[#D4A574] transition-colors flex items-center gap-2 group">
                       <span className="w-0 group-hover:w-2 h-0.5 bg-[#D4A574] transition-all" />
                       {item}
                     </a>

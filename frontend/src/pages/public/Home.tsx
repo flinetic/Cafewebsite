@@ -4,10 +4,10 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import {
     BookOpen, Coffee, Gamepad, Wifi, Users,
     ChevronRight, MapPin, Phone, Instagram, ArrowRight,
-    Send, Loader2, Mail
+    Send, Loader2, Mail, Heart, Award, Facebook, Twitter, Linkedin
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import Logo from '../../assets/logo.svg';
+
 
 const Home: React.FC = () => {
     const [showHero, setShowHero] = useState(false);
@@ -24,6 +24,17 @@ const Home: React.FC = () => {
         hidden: { opacity: 0, y: 60 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
     };
+
+    const staggerContainer = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    };
+
+    const values = [
+        { icon: Heart, title: 'Passion', desc: 'Every cup crafted with love and dedication' },
+        { icon: Users, title: 'Community', desc: 'Building connections over coffee and books' },
+        { icon: Award, title: 'Quality', desc: 'Only the finest ingredients and experiences' },
+    ];
 
 
     const features = [
@@ -58,6 +69,15 @@ const Home: React.FC = () => {
         { name: 'Cold Brew', price: '₹160', tag: 'Refreshing' },
         { name: 'Mocha Supreme', price: '₹200', tag: 'Indulgent' },
         { name: 'Matcha Oat', price: '₹190', tag: 'Healthy' },
+    ];
+
+    const galleryImages = [
+        'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80',
     ];
 
     // Contact Form State
@@ -154,19 +174,7 @@ const Home: React.FC = () => {
 
                 {/* Content */}
                 <div className="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
-                    {/* Logo with Border */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={showHero ? { opacity: 1, scale: 1 } : {}}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="mb-8"
-                    >
-                        <img
-                            src={Logo}
-                            alt="Book A Vibe"
-                            className="w-28 h-28 mx-auto rounded-full border-4 border-white/80 shadow-2xl"
-                        />
-                    </motion.div>
+
 
                     {/* Badge */}
                     <motion.div
@@ -269,6 +277,94 @@ const Home: React.FC = () => {
                     </div>
                 </motion.div>
             </motion.section>
+
+            {/* About Section */}
+            <section id="about" className="py-24 bg-white relative">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="grid md:grid-cols-2 gap-16 items-center mb-24">
+                        <motion.div
+                            initial={{ opacity: 0, x: -50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8 }}
+                        >
+                            <span className="inline-block px-4 py-2 bg-[#8B5E3C]/10 rounded-full text-[#8B5E3C] font-medium mb-4">
+                                Our Mission
+                            </span>
+                            <h2 className="text-4xl font-bold text-[#2C1810] mb-6">
+                                Creating Spaces for <br />
+                                <span className="text-[#8B5E3C]">Inspiration</span>
+                            </h2>
+                            <p className="text-lg text-[#5D4E37] mb-6 leading-relaxed">
+                                We believe the best ideas come when you're comfortable. That's why
+                                we've designed every corner of Book A Vibe to spark creativity,
+                                encourage connection, and fuel your passions.
+                            </p>
+                            <p className="text-lg text-[#5D4E37] leading-relaxed">
+                                Whether you're diving into a new novel, brainstorming your next big
+                                project, or challenging friends to a board game — this is your space.
+                            </p>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                            className="relative"
+                        >
+                            <div className="rounded-3xl overflow-hidden shadow-2xl">
+                                <img
+                                    src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=800&auto=format&fit=crop&q=80"
+                                    alt="Cafe Interior"
+                                    className="w-full h-[400px] object-cover"
+                                />
+                            </div>
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                whileInView={{ y: 0, opacity: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.5 }}
+                                className="absolute -bottom-6 -right-6 bg-gradient-to-br from-[#8B5E3C] to-[#6B4423] p-6 rounded-2xl text-white shadow-xl"
+                            >
+                                <p className="text-3xl font-bold">Est. 2020</p>
+                                <p className="text-[#D4A574]">Serving happiness daily</p>
+                            </motion.div>
+                        </motion.div>
+                    </div>
+
+                    {/* Values Grid */}
+                    <div className="text-center mb-16">
+                        <span className="inline-block px-4 py-2 bg-[#8B5E3C]/10 rounded-full text-[#8B5E3C] font-medium mb-4">
+                            What Drives Us
+                        </span>
+                        <h2 className="text-4xl font-bold text-[#2C1810]">Our Values</h2>
+                    </div>
+
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={staggerContainer}
+                        className="grid md:grid-cols-3 gap-8"
+                    >
+                        {values.map((value, idx) => (
+                            <motion.div
+                                key={idx}
+                                variants={fadeInUp}
+                                whileHover={{ y: -10 }}
+                                className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all text-center border border-[#E8DFD3]"
+                            >
+                                <div className="w-16 h-16 bg-gradient-to-br from-[#8B5E3C] to-[#D4A574] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                    <value.icon className="text-white" size={28} />
+                                </div>
+                                <h3 className="text-2xl font-bold text-[#2C1810] mb-3">{value.title}</h3>
+                                <p className="text-[#5D4E37]">{value.desc}</p>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                </div>
+            </section>
 
             {/* Features Section - What We Offer */}
             <section id="features" className="py-24 bg-gradient-to-b from-[#FDF8F3] to-[#F5EBE0]">
@@ -447,8 +543,56 @@ const Home: React.FC = () => {
                 </div>
             </section>
 
+            {/* Gallery Section */}
+            <section id="gallery" className="py-24 bg-white">
+                <div className="max-w-7xl mx-auto px-6">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-16"
+                    >
+                        <span className="inline-block px-5 py-2.5 bg-gradient-to-r from-[#8B5E3C]/20 to-[#D4A574]/20 rounded-full text-[#8B5E3C] font-semibold mb-6 border border-[#8B5E3C]/20">
+                            📸 Our Vibes
+                        </span>
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#2C1810] mb-4">
+                            Captured <span className="text-[#8B5E3C]">Moments</span>
+                        </h2>
+                        <p className="text-xl text-[#5D4E37] max-w-2xl mx-auto">
+                            A glimpse into the daily life at Book A Vibe
+                        </p>
+                    </motion.div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {galleryImages.map((img, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: idx * 0.1 }}
+                                whileHover={{ scale: 1.03 }}
+                                className="relative group overflow-hidden rounded-3xl aspect-[4/3] shadow-lg cursor-pointer"
+                            >
+                                <img
+                                    src={img}
+                                    alt={`Gallery ${idx + 1}`}
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                                    <div className="text-white">
+                                        <p className="font-bold text-lg">Book A Vibe</p>
+                                        <p className="text-sm text-white/80">Experience the magic</p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* Contact Form Section */}
-            <section className="py-24 bg-gradient-to-br from-[#3D2817] to-[#2C1810] relative overflow-hidden">
+            <section id="contact" className="py-24 bg-gradient-to-br from-[#3D2817] to-[#2C1810] relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-20 left-20 w-64 h-64 bg-[#D4A574] rounded-full blur-3xl" />
                     <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#8B5E3C] rounded-full blur-3xl" />
@@ -518,7 +662,7 @@ const Home: React.FC = () => {
                             </div>
 
                             <div className="flex gap-4">
-                                {[Instagram].map((Icon, idx) => (
+                                {[Instagram, Facebook, Twitter, Linkedin].map((Icon, idx) => (
                                     <a key={idx} href="#" className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:bg-white hover:text-[#2C1810] transition-all">
                                         <Icon size={20} />
                                     </a>
