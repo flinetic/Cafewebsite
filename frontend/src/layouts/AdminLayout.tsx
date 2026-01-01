@@ -178,7 +178,7 @@ const AdminLayout: React.FC = () => {
         <div className="p-4 border-t border-caramel/30">
           {sidebarOpen ? (
             <div className="text-center text-mocha text-sm">
-              © 2024 BookAVibe
+              © 2026 BookAVibe
             </div>
           ) : null}
         </div>

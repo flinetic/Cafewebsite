@@ -200,7 +200,7 @@ const RegisterPage: React.FC = () => {
 
           {/* Footer */}
           <p className="text-center mt-8 text-mocha text-sm">
-            © 2024 BookAVibe. All rights reserved.
+            © 2026 BookAVibe. All rights reserved.
           </p>
         </div>
       </div>
@@ -435,7 +435,7 @@ const RegisterPage: React.FC = () => {
 
         {/* Footer */}
         <p className="text-center mt-8 text-mocha text-sm">
-          © 2024 BookAVibe. All rights reserved.
+          © 2026 BookAVibe. All rights reserved.
         </p>
       </div>
     </div>
