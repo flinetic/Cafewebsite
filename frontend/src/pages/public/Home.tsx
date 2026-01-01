@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import {
-    BookOpen, Coffee, Gamepad2, Wifi, Users,
-    ChevronRight, MapPin, Phone, Instagram, ArrowRight
+    BookOpen, Coffee, Gamepad, Wifi, Users,
+    ChevronRight, MapPin, Phone, Instagram, ArrowRight,
+    Send, Loader2, Mail
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import Logo from '../../assets/logo.svg';
 
 const Home: React.FC = () => {
@@ -44,7 +46,7 @@ const Home: React.FC = () => {
             image: 'data:image/jpeg;base64,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'
         },
         {
-            icon: Gamepad2,
+            icon: Gamepad,
             title: 'Gaming Zone',
             desc: 'Board games, consoles & tournaments',
             image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFE4mNIKeH7P-bYrRCzbLRjVSQcPJ6Jq_C5w&s'
@@ -57,6 +59,73 @@ const Home: React.FC = () => {
         { name: 'Mocha Supreme', price: '₹200', tag: 'Indulgent' },
         { name: 'Matcha Oat', price: '₹190', tag: 'Healthy' },
     ];
+
+    // Contact Form State
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+    });
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Basic validation
+        if (!formData.name || !formData.phone || !formData.message) {
+            toast.error('Please fill in all required fields');
+            return;
+        }
+
+        setSubmitting(true);
+
+        try {
+            // Check if Google Script URL is configured
+            // Note: User needs to replace this URL after deploying their script
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPaiMlvcIoZg704I2kMXBJ00gMCE-hJXvPLXMgTXqLm0d_t17rF3Td8YqTYxCCwxhP/exec';
+
+            if (GOOGLE_SCRIPT_URL.includes('REPLACE_WITH')) {
+                // Simulate success for demo purposes if URL isn't set
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                toast.error('Please configure the Google Script URL first (check setup instructions)');
+                setSubmitting(false);
+                return;
+            }
+
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Important for Google Apps Script
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            // Since mode is no-cors, we can't check response.ok
+            // We assume success if no network error occurred
+            toast.success('Message sent successfully! We will contact you soon.');
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                message: ''
+            });
+        } catch (error) {
+            console.error('Submission error:', error);
+            toast.error('Failed to send message. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     const stats = [
         { value: '500+', label: 'Books' },
@@ -378,56 +447,168 @@ const Home: React.FC = () => {
                 </div>
             </section>
 
-            {/* CTA Section */}
+            {/* Contact Form Section */}
             <section className="py-24 bg-gradient-to-br from-[#3D2817] to-[#2C1810] relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-20 left-20 w-64 h-64 bg-[#D4A574] rounded-full blur-3xl" />
                     <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#8B5E3C] rounded-full blur-3xl" />
                 </div>
 
-                <div className="relative max-w-4xl mx-auto px-6 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                            Ready to Book Your Vibe?
-                        </h2>
-                        <p className="text-xl text-[#C4A484] mb-8 max-w-2xl mx-auto">
-                            Visit us today and discover your new favorite spot for coffee, books,
-                            work, and play.
-                        </p>
-                        <div className="flex flex-wrap justify-center gap-4">
-                            <a
-                                href="https://maps.google.com"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-[#8B5E3C] rounded-full font-semibold hover:scale-105 transition-all"
-                            >
-                                <MapPin size={20} />
-                                Get Directions
-                            </a>
-                            <a
-                                href="tel:+911234567890"
-                                className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-[#8B5E3C] transition-all"
-                            >
-                                <Phone size={20} />
-                                Call Us
-                            </a>
-                        </div>
+                <div className="relative max-w-7xl mx-auto px-6">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <span className="inline-block px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-[#D4A574] font-semibold mb-6 border border-white/20">
+                                📞 Get in Touch
+                            </span>
+                            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                                Have Questions? <br />
+                                <span className="text-[#D4A574]">We're Here to Help</span>
+                            </h2>
+                            <p className="text-xl text-white/80 mb-10 leading-relaxed">
+                                Whether you want to book a table, host an event, or just say hello,
+                                we'd love to hear from you. Fill out the form and our team will
+                                get back to you shortly.
+                            </p>
 
-                        <div className="mt-12 flex justify-center gap-6">
-                            <p className="text-[#A89378]">Follow us</p>
-                            {[Instagram, Coffee].map((Icon, idx) => (
-                                <a key={idx} href="#" className="text-[#A89378] hover:text-white transition-colors">
-                                    <Icon size={24} />
+                            <div className="space-y-6 mb-10">
+                                <a
+                                    href="https://maps.google.com"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-4 text-white hover:text-[#D4A574] transition-colors group"
+                                >
+                                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-[#D4A574] group-hover:text-white transition-all">
+                                        <MapPin size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-lg">Visit Us</p>
+                                        <p className="text-white/60">123 Cafe Street, Bookville, BK 400001</p>
+                                    </div>
                                 </a>
-                            ))}
-                        </div>
-                    </motion.div>
+
+                                <a
+                                    href="tel:+911234567890"
+                                    className="flex items-center gap-4 text-white hover:text-[#D4A574] transition-colors group"
+                                >
+                                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-[#D4A574] group-hover:text-white transition-all">
+                                        <Phone size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-lg">Call Us</p>
+                                        <p className="text-white/60">+91 123 456 7890</p>
+                                    </div>
+                                </a>
+
+                                <a
+                                    href="mailto:hello@bookavibe.com"
+                                    className="flex items-center gap-4 text-white hover:text-[#D4A574] transition-colors group"
+                                >
+                                    <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center group-hover:bg-[#D4A574] group-hover:text-white transition-all">
+                                        <Mail size={24} />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-lg">Email Us</p>
+                                        <p className="text-white/60">hello@bookavibe.com</p>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div className="flex gap-4">
+                                {[Instagram].map((Icon, idx) => (
+                                    <a key={idx} href="#" className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:bg-white hover:text-[#2C1810] transition-all">
+                                        <Icon size={20} />
+                                    </a>
+                                ))}
+                            </div>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl"
+                        >
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-[#5D4E37]">Your Name</label>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full px-4 py-3 bg-[#FDF8F3] border border-[#E8DFD3] rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent outline-none transition-all placeholder:text-[#A89378]"
+                                            placeholder="John Doe"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-[#5D4E37]">Phone Number</label>
+                                        <input
+                                            type="tel"
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full px-4 py-3 bg-[#FDF8F3] border border-[#E8DFD3] rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent outline-none transition-all placeholder:text-[#A89378]"
+                                            placeholder="+91 98765 43210"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-[#5D4E37]">Email Address (Optional)</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        className="w-full px-4 py-3 bg-[#FDF8F3] border border-[#E8DFD3] rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent outline-none transition-all placeholder:text-[#A89378]"
+                                        placeholder="john@example.com"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-[#5D4E37]">Your Message</label>
+                                    <textarea
+                                        name="message"
+                                        value={formData.message}
+                                        onChange={handleInputChange}
+                                        required
+                                        rows={4}
+                                        className="w-full px-4 py-3 bg-[#FDF8F3] border border-[#E8DFD3] rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent outline-none transition-all placeholder:text-[#A89378] resize-none"
+                                        placeholder="I'd like to book a table for..."
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="w-full py-4 bg-gradient-to-r from-[#8B5E3C] to-[#6B4423] text-white rounded-xl font-bold shadow-lg shadow-[#8B5E3C]/30 hover:shadow-xl hover:scale-[1.02] disabled:opacity-70 disabled:hover:scale-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                    {submitting ? (
+                                        <>
+                                            <Loader2 size={20} className="animate-spin" />
+                                            Sending...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Send Message
+                                            <Send size={20} />
+                                        </>
+                                    )}
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
                 </div>
             </section>
+
+            {/* CTA Section */}
         </div>
     );
 };
