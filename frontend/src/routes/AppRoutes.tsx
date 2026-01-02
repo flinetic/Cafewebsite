@@ -70,14 +70,14 @@ const AppRoutes: React.FC = () => {
       {/* Table Menu Route - Customer ordering via QR code (MUST be before PublicLayout) */}
       {/* Handles: /menu?table=X and /table/:tableNumber/menu */}
       <Route path="/table/:tableNumber/menu" element={
-        <LocationGuard>
-          <TableMenu />
-        </LocationGuard>
+        //<LocationGuard>
+        <TableMenu />
+        //</LocationGuard>
       } />
       <Route path="/scan" element={
-        <LocationGuard>
-          <TableMenu />
-        </LocationGuard>
+        //<LocationGuard>
+        <TableMenu />
+        //</LocationGuard>
       } />
 
       {/* Public Routes with PublicLayout */}
