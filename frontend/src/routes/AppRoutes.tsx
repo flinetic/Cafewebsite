@@ -29,7 +29,7 @@ import Settings from '../pages/admin/Settings';
 
 // Protected Route Components
 import ProtectedRoute from '../components/ProtectedRoute';
-import LocationGuard from '../components/LocationGuard';
+//import LocationGuard from '../components/LocationGuard';
 //import EmailVerificationGuard from '../components/EmailVerificationGuard';
 
 // Role-based redirect component - redirects kitchen users to Orders
