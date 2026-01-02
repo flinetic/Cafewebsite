@@ -97,6 +97,7 @@ const TableMenu: React.FC = () => {
     setTableNumber,
     setCustomerInfo,
     clearCart,
+    clearCustomerInfo,
     getTotalAmount,
     getTotalItems,
     checkAndCleanExpiredSession
@@ -278,6 +279,9 @@ const TableMenu: React.FC = () => {
 
       await orderApi.createOrder(orderData);
       clearCart();
+      clearCustomerInfo(); // Clear customer info so they have to re-enter details for next order
+      setRegName(''); // Reset form fields
+      setRegPhone('');
       setSelectedOffer(null);
       setShowCart(false);
       setShowOrderConfirm(true);

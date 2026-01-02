@@ -28,6 +28,7 @@ interface CartContextType {
   setTableNumber: (tableNumber: number) => void;
   setCustomerInfo: (info: CustomerInfo) => void;
   clearSession: () => void;
+  clearCustomerInfo: () => void;
   checkAndCleanExpiredSession: () => boolean;
   getTotalAmount: () => number;
   getTotalItems: () => number;
@@ -164,6 +165,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     localStorage.removeItem(CUSTOMER_EXPIRY_KEY);
   };
 
+  // Clear only customer info (useful after order placement)
+  const clearCustomerInfo = () => {
+    setCustomerInfoState(null);
+    localStorage.removeItem(CUSTOMER_STORAGE_KEY);
+    localStorage.removeItem(CUSTOMER_EXPIRY_KEY);
+  };
+
   const getTotalAmount = () => {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
@@ -196,6 +204,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         setTableNumber,
         setCustomerInfo,
         clearSession,
+        clearCustomerInfo,
         checkAndCleanExpiredSession,
         getTotalAmount,
         getTotalItems,
