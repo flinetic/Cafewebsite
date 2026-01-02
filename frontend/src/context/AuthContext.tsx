@@ -12,7 +12,7 @@ interface RegisterResponse {
 interface AuthContextType {
   user: Staff | null;
   tokens: AuthTokens | null;
-  //isAuthenticated: boolean;
+  isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<RegisterResponse | undefined>;
@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       value={{
         user,
         tokens,
-        //isAuthenticated: !!user && !!tokens,
+        isAuthenticated: !!user && !!tokens,
         isLoading,
         login,
         register,
