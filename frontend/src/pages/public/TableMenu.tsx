@@ -550,8 +550,8 @@ const TableMenu: React.FC = () => {
 
         {/* Category Tabs for Menu and Orders */}
         {(mainTab === 'menu' || mainTab === 'orders') && (
-          <div className="overflow-x-auto -mx-4 px-4 mb-6">
-            <div className="flex gap-2 min-w-max">
+          <div className="overflow-x-auto -mx-4 px-4">
+            <div className="flex gap-2 min-w-max  mb-4">
               <button
                 onClick={() => setActiveCategory('all')}
                 className={`px-4 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${activeCategory === 'all'
@@ -594,7 +594,7 @@ const TableMenu: React.FC = () => {
               <div className="space-y-6">
                 {Object.entries(groupedFilteredItems).map(([category, items]) => (
                   <div key={category}>
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-3 mb-4 mt-4">
                       <span className="text-2xl">{getCategoryIcon(category)}</span>
                       <h2 className="text-xl font-bold text-gray-800">
                         {getCategoryLabel(category)}
