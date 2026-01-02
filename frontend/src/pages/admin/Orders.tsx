@@ -158,10 +158,21 @@ const Orders: React.FC = () => {
     }
   }, [fetchPendingOrders, fetchCompletedOrders, fetchStats]);
 
-  // Initial load
+  // // Initial load
+  // useEffect(() => {
+  //   fetchAllData();
+  // }, [fetchAllData]);
+
   useEffect(() => {
-    fetchAllData();
+    fetchAllData(true);
+
+    const interval = setInterval(() => {
+      fetchAllData(false);
+    }, 15000);
+
+    return () => clearInterval(interval);
   }, [fetchAllData]);
+
 
   // Auto-refresh polling
   useEffect(() => {
