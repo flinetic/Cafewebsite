@@ -6,6 +6,7 @@ const { adminOnly } = require('../middleware/roleAuth');
 
 // Public routes
 router.get('/active', offerController.getActiveOffers);
+router.get('/upcoming', offerController.getUpcomingOffers);
 
 // Protected routes (admin only)
 router.use(protect, adminOnly);

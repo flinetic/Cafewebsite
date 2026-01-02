@@ -69,13 +69,25 @@ const offerSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Virtual for checking if offer is valid
+// Virtual for checking if offer is valid (currently active within date range)
 offerSchema.virtual('isValid').get(function () {
     const now = new Date();
     return this.isActive &&
         now >= this.validFrom &&
         now <= this.validTo &&
         (this.usageLimit === null || this.usedCount < this.usageLimit);
+});
+
+// Virtual for checking if offer is upcoming (scheduled for future)
+offerSchema.virtual('isUpcoming').get(function () {
+    const now = new Date();
+    return this.isActive && now < this.validFrom && now <= this.validTo;
+});
+
+// Virtual for checking if offer is expired
+offerSchema.virtual('isExpired').get(function () {
+    const now = new Date();
+    return now > this.validTo;
 });
 
 // Transform for JSON

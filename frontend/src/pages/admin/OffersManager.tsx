@@ -10,7 +10,8 @@ import {
     Edit2,
     Trash2,
     Calendar,
-    IndianRupee
+    IndianRupee,
+    Clock
 } from 'lucide-react';
 import { offerApi, type OfferData } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -32,6 +33,8 @@ interface Offer {
     usageLimit: number | null;
     usedCount: number;
     isValid: boolean;
+    isUpcoming: boolean;
+    isExpired: boolean;
     createdAt: string;
 }
 
@@ -221,7 +224,7 @@ const OffersManager: React.FC = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                     <p className="text-sm text-gray-600 mb-1">Total Offers</p>
                     <p className="text-2xl font-bold text-gray-800">{offers.length}</p>
@@ -233,9 +236,15 @@ const OffersManager: React.FC = () => {
                     </p>
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <p className="text-sm text-gray-600 mb-1">Upcoming</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                        {offers.filter(o => o.isUpcoming).length}
+                    </p>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                     <p className="text-sm text-gray-600 mb-1">Expired/Inactive</p>
                     <p className="text-2xl font-bold text-red-600">
-                        {offers.filter(o => !o.isActive || !o.isValid).length}
+                        {offers.filter(o => o.isExpired || !o.isActive).length}
                     </p>
                 </div>
             </div>
@@ -258,7 +267,11 @@ const OffersManager: React.FC = () => {
                     {offers.map(offer => (
                         <div
                             key={offer.id}
-                            className={`bg-white rounded-xl shadow-sm overflow-hidden border ${offer.isActive && offer.isValid ? 'border-green-200' : 'border-gray-200 opacity-70'
+                            className={`bg-white rounded-xl shadow-sm overflow-hidden border ${offer.isActive && offer.isValid
+                                    ? 'border-green-200'
+                                    : offer.isUpcoming
+                                        ? 'border-blue-200'
+                                        : 'border-gray-200 opacity-70'
                                 }`}
                         >
                             {/* Header */}
@@ -304,6 +317,11 @@ const OffersManager: React.FC = () => {
                                     {offer.isActive && offer.isValid ? (
                                         <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                                             Active
+                                        </span>
+                                    ) : offer.isUpcoming ? (
+                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium inline-flex items-center gap-1">
+                                            <Clock size={12} />
+                                            Upcoming - Starts {formatDate(offer.validFrom)}
                                         </span>
                                     ) : !offer.isActive ? (
                                         <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">

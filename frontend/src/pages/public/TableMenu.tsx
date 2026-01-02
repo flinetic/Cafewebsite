@@ -17,7 +17,8 @@ import {
   Phone,
   UtensilsCrossed,
   Tag,
-  ClipboardList
+  ClipboardList,
+  Clock
 } from 'lucide-react';
 import { menuApi, orderApi, offerApi } from '../../services/api';
 import { useCart } from '../../context/CartContext';
@@ -105,6 +106,7 @@ const TableMenu: React.FC = () => {
 
   const [menuItems, setMenuItems] = useState<GroupedMenu>({});
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [upcomingOffers, setUpcomingOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -151,12 +153,14 @@ const TableMenu: React.FC = () => {
       setTableValid(true);
       setTableNumber(tableNumber);
 
-      const [menuResponse, offersResponse] = await Promise.all([
+      const [menuResponse, offersResponse, upcomingResponse] = await Promise.all([
         menuApi.getMenuGrouped(),
-        offerApi.getActiveOffers()
+        offerApi.getActiveOffers(),
+        offerApi.getUpcomingOffers()
       ]);
       setMenuItems(menuResponse.data.data);
       setOffers(offersResponse.data.data || []);
+      setUpcomingOffers(upcomingResponse.data.data || []);
     } catch (err) {
       const axiosError = err as AxiosError<ErrorResponse>;
       setError(axiosError.response?.data?.message || 'Invalid table or failed to load menu');
@@ -618,7 +622,7 @@ const TableMenu: React.FC = () => {
         {/* OFFERS TAB */}
         {mainTab === 'offers' && (
           <>
-            {offers.length === 0 ? (
+            {offers.length === 0 && upcomingOffers.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
                 <Tag className="w-16 h-16 text-amber-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">No Offers Available</h3>
@@ -627,45 +631,118 @@ const TableMenu: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {offers.map(offer => (
-                  <div
-                    key={offer.id}
-                    className="bg-white rounded-xl shadow-sm overflow-hidden border border-amber-200"
-                  >
-                    {/* Offer Header */}
-                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-white">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-2xl font-bold">
-                          {offer.discountType === 'percentage'
-                            ? `${offer.discountValue}% OFF`
-                            : offer.discountType === 'flat'
-                              ? `₹${offer.discountValue} OFF`
-                              : 'Buy 1 Get 1'}
-                        </span>
-                        {offer.code && (
-                          <span className="bg-white/20 px-2 py-1 rounded text-sm font-mono">
-                            {offer.code}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-semibold">{offer.title}</h3>
+              <div className="space-y-8">
+                {/* Available Now Section */}
+                {offers.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">🔥</span>
+                      <h2 className="text-xl font-bold text-gray-800">Available Now</h2>
+                      <div className="flex-1 h-px bg-gradient-to-r from-amber-200 to-transparent"></div>
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {offers.map(offer => (
+                        <div
+                          key={offer.id}
+                          className="bg-white rounded-xl shadow-sm overflow-hidden border border-amber-200"
+                        >
+                          {/* Offer Header */}
+                          <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-white">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-2xl font-bold">
+                                {offer.discountType === 'percentage'
+                                  ? `${offer.discountValue}% OFF`
+                                  : offer.discountType === 'flat'
+                                    ? `₹${offer.discountValue} OFF`
+                                    : 'Buy 1 Get 1'}
+                              </span>
+                              {offer.code && (
+                                <span className="bg-white/20 px-2 py-1 rounded text-sm font-mono">
+                                  {offer.code}
+                                </span>
+                              )}
+                            </div>
+                            <h3 className="font-semibold">{offer.title}</h3>
+                          </div>
 
-                    {/* Offer Content */}
-                    <div className="p-4">
-                      {offer.description && (
-                        <p className="text-gray-600 text-sm mb-3">{offer.description}</p>
-                      )}
-                      <div className="space-y-1 text-xs text-gray-500">
-                        <p>Valid: {new Date(offer.validFrom).toLocaleDateString()} - {new Date(offer.validTo).toLocaleDateString()}</p>
-                        {offer.minimumOrder > 0 && (
-                          <p>Min. order: ₹{offer.minimumOrder}</p>
-                        )}
-                      </div>
+                          {/* Offer Content */}
+                          <div className="p-4">
+                            {offer.description && (
+                              <p className="text-gray-600 text-sm mb-3">{offer.description}</p>
+                            )}
+                            <div className="space-y-1 text-xs text-gray-500">
+                              <p>Valid until: {new Date(offer.validTo).toLocaleDateString()}</p>
+                              {offer.minimumOrder > 0 && (
+                                <p>Min. order: ₹{offer.minimumOrder}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+                )}
+
+                {/* Coming Soon Section */}
+                {upcomingOffers.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <Clock className="w-6 h-6 text-blue-500" />
+                      <h2 className="text-xl font-bold text-gray-800">Coming Soon</h2>
+                      <div className="flex-1 h-px bg-gradient-to-r from-blue-200 to-transparent"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {upcomingOffers.map(offer => (
+                        <div
+                          key={offer.id}
+                          className="bg-white rounded-xl shadow-sm overflow-hidden border border-blue-200"
+                        >
+                          {/* Offer Header */}
+                          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-4 text-white">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-2xl font-bold">
+                                {offer.discountType === 'percentage'
+                                  ? `${offer.discountValue}% OFF`
+                                  : offer.discountType === 'flat'
+                                    ? `₹${offer.discountValue} OFF`
+                                    : 'Buy 1 Get 1'}
+                              </span>
+                              {offer.code && (
+                                <span className="bg-white/20 px-2 py-1 rounded text-sm font-mono">
+                                  {offer.code}
+                                </span>
+                              )}
+                            </div>
+                            <h3 className="font-semibold">{offer.title}</h3>
+                          </div>
+
+                          {/* Offer Content */}
+                          <div className="p-4">
+                            {offer.description && (
+                              <p className="text-gray-600 text-sm mb-3">{offer.description}</p>
+                            )}
+                            <div className="space-y-1 text-xs">
+                              <p className="text-blue-600 font-medium flex items-center gap-1">
+                                <Clock size={12} />
+                                Starts: {new Date(offer.validFrom).toLocaleDateString('en-IN', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </p>
+                              <p className="text-gray-500">
+                                Valid until: {new Date(offer.validTo).toLocaleDateString()}
+                              </p>
+                              {offer.minimumOrder > 0 && (
+                                <p className="text-gray-500">Min. order: ₹{offer.minimumOrder}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>

@@ -378,6 +378,9 @@ export const offerApi = {
   // Get active offers (public)
   getActiveOffers: () => api.get('/offers/active'),
 
+  // Get upcoming offers (public)
+  getUpcomingOffers: () => api.get('/offers/upcoming'),
+
   // Get offer by ID
   getOfferById: (id: string) => api.get(`/offers/${id}`),
 

@@ -94,6 +94,23 @@ const getActiveOffers = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Get upcoming offers (public)
+ * @route   GET /api/offers/upcoming
+ * @access  Public
+ */
+const getUpcomingOffers = asyncHandler(async (req, res) => {
+    const now = new Date();
+
+    const offers = await Offer.find({
+        isActive: true,
+        validFrom: { $gt: now }, // Start date is in the future
+        validTo: { $gte: now }   // End date hasn't passed
+    }).sort({ validFrom: 1 }); // Sort by upcoming date, nearest first
+
+    successResponse(res, 200, 'Upcoming offers retrieved', offers);
+});
+
+/**
  * @desc    Get single offer
  * @route   GET /api/offers/:id
  * @access  Public
@@ -166,6 +183,7 @@ module.exports = {
     createOffer,
     getAllOffers,
     getActiveOffers,
+    getUpcomingOffers,
     getOfferById,
     updateOffer,
     toggleOfferStatus,
